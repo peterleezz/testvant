@@ -1,0 +1,222 @@
+<style lang="less">
+  .content {
+ 
+  font-size: 16px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+
+}
+
+.footer {
+  text-align: right;
+}
+
+.pic{
+  flex-shrink:0;
+}
+.btn{
+  flex-shrink:1;
+}
+.detail{
+  font-size:24rpx;
+  color:#666;
+}
+
+</style>
+<template>
+  <van-tabs active="{{ active }}" bind:change="onChange($event)" animated swipe-threshold="7">
+    <van-tab title="{{item.title}}" name="{{item.value}}" v-for="item in array"></van-tab>
+  </van-tabs>
+  <div v-for="(item, index) in schedules.data">
+    <van-panel title="{{item.course.data.name}}" status="{{item.status}}" use-footer-slot>
+      <view class="content">
+        <van-image round height="90" width="90" src="{{item.teacher.data.avatar}}" class="pic" />
+        <div class="detail">
+          <div>开课时间：{{item.start}}</div>
+          <div>教室：{{item.room.data.name}}</div>
+          <div>难度：{{item.course.data.level}}星</div>
+          <div>剩余位置：{{item.room.data.num-item.appoint_count }} </div>
+          <div>上课老师：{{item.teacher.data.name_en}}</div>
+        </div>
+        <van-button key="a_{{item.id}}" v-if="!item.isMine" size="small" class="btn" type="primary" disabled="{{!item.can_appoint}}" @tap="appoint(item)">预约</van-button>
+        <van-button key="c_{{item.id}}" v-if="item.isMine" size="small" class="btn" type="warning" disabled="{{!item.can_cancel}}" @tap="cancel(item)">取消预约</van-button>
+      </view>
+    </van-panel>
+    <van-divider dashed />
+  </div>
+  <van-empty description="今日无课程" v-if="schedules.data.length == 0" />
+  <van-toast id="van-toast" />
+  <van-dialog id="van-dialog" />
+  <van-calendar show="{{ show }}" max-date="{{ maxDate }}" bind:close="onClose" bind:confirm="onConfirm" show-confirm="{{ false }}" />
+</template>
+<script>
+import wepy from '@wepy/core'
+import event from 'event'
+import { mapState, mapGetters, mapMutations, mapActions } from '@wepy/x'
+import store from 'store'
+import Toast from '@/components/vant/toast/toast'
+import Dialog from '@/components/vant/dialog/dialog';
+import api from '@/api/schedule'
+import appoint from '@/api/appoint'
+import mixin from 'mixin'
+import dateformat from '@/common/Date'
+import eventHub from '@/common/eventHub';
+import { phoneR, verifyR } from '@/common/Rules'
+let toast = null
+wepy.page({
+  store,
+  mixins: [mixin],
+
+  data: {
+    active: 0,
+    show: false,
+    // clubId: 2090,
+    clubId: 2082,
+    schedules: [],
+    maxDate: '2020-12-30',
+    array: []
+  },
+
+
+  computed: {
+    ...mapGetters(['userId', 'memberId']),
+
+  },
+  watch: {
+
+  },
+  methods: {
+    ...mapMutations([]),
+    onClose() {
+      this.show = false
+    },
+    async cancel(item) {
+
+
+
+      let ret = await Dialog.confirm({
+        title: '取消约课',
+        message: '取消约课，需要在课程开始前两小时',
+      })
+      try {
+        await appoint.del(item.appoint_id)
+        this.schedules.data = this.schedules.data.map(e => {
+          if (e.appoint_id == item.appoint_id) e.isMine = false
+          return e
+        })
+
+
+        Toast.success('课程预约已取消')
+      } catch (e) {
+        console.log(e)
+        Toast.fail(e)
+      }
+    },
+    schedulestatus(item) {
+
+      return item.start
+
+    },
+    appoint(item) {
+      console.log(item)
+      if (item.can_appoint)
+        wx.navigateTo({ url: `seat?id=${item.id}` })
+    },
+    async onConfirm(e) {
+      console.log(e.$wx.detail)
+      this.show = false
+      this.getClubSchedule(dateformat.format(e.$wx.detail, 'yyyy-MM-dd'))
+    },
+    async onChange(event) {
+
+      console.log(event.$wx.detail)
+      if (event.$wx.detail.index == 7) this.show = true
+      else
+        this.getClubSchedule(event.$wx.detail.name)
+
+
+    },
+
+    async getClubSchedule(start_time) {
+      console.log('xxxxxxx', this.schedules)
+      this.schedules = await api.index({ club_id: this.clubId, include: 'room,course,teacher,appoint.xcxuser', start_time })
+      console.log('--------', this.schedules)
+      this.schedules.data.forEach(ee => {
+        ee.appoint.data.forEach(e => {
+
+          if (e.member_id == this.memberId || (e.xcxuser && e.xcxuser.data.id == this.userId)) {
+            ee.isMine = true
+            ee.appoint_id = e.id
+          }
+
+        })
+      })
+
+
+      console.log(this.schedules)
+      // data.forEach(item => {
+      //   item.start = item.start.length > 16 ? item.start.substr(0, 16) : item.start
+      // })
+      // this.scheduleList = data
+      // this.$apply()
+    }
+
+
+  },
+
+
+
+  async onLoad() {
+
+    let start_time = new Date()
+    for (let i = 0; i < 7; i++) {
+      let date = dateformat.addDay(new Date(), i)
+      let day = dateformat.format(date, 'MM-dd')
+      let week = dateformat.dayOfWeek(date)
+      this.array.push({ id: i, title: `${week}`, subtitle: day, value: dateformat.format(date, 'yyyy-MM-dd') })
+    }
+    this.array.push({ id: 8, title: `>>` })
+    await this.getClubSchedule(dateformat.format(new Date(), 'yyyy-MM-dd'))
+
+    eventHub.$on('appoint-success', (...args) => {
+      let { schedule_id, appoint_id } = args[0]
+      this.schedules.data = this.schedules.data.map(e => {
+        if (e.id == schedule_id) {
+          e.appoint_id = appoint_id
+          e.isMine = true
+        }
+        return e
+      })
+
+
+
+    });
+
+
+  }
+})
+
+</script>
+<config>
+  {
+  navigationBarTitleText: '预约课程',
+  usingComponents: {
+  "van-icon": "module:vant/icon/index",
+  "van-divider": "module:vant/divider/index",
+  "van-panel": "module:vant/panel/index",
+  "van-calendar": "module:vant/calendar/index",
+  "van-empty": "module:vant/empty/index",
+  "van-tab": "module:vant/tab/index",
+  "van-tabs": "module:vant/tabs/index",
+  "van-field": "module:vant/field/index",
+  "van-button": "module:vant/button/index",
+  "van-image": "module:vant/image/index",
+  "van-toast": "module:vant/toast/index",
+  "van-popup": "module:vant/popup/index",
+  "van-count-down": "module:vant/count-down/index",
+  "van-cell-group": "module:vant/cell-group/index",
+  "van-dialog": "module:vant/dialog/index"
+  }
+  }
+</config>

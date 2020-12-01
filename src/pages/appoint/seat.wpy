@@ -1,0 +1,246 @@
+<style lang="less">
+.content {
+  width: 100%;
+  background-color: #fff;
+  margin-top: 10rpx;
+
+}
+
+.row {
+  padding-top: 10rpx;
+}
+
+.rowdetail {
+  display: flex;
+  justify-content: center;
+
+}
+
+.pos {
+
+  font-size: 20rpx;
+  color: #666;
+
+}
+
+.van-submit-bar {
+  position: relative !important;
+}
+
+.van-button--danger {
+  background-color: #07c160 !important;
+  border-radius: 2px;
+  border: 0 !important;
+}
+
+.mine {
+  color: #07c160;
+}
+
+.default {
+  color: #999;
+}
+
+.chosen {
+  color: #eee;
+}
+
+.tip {
+  display: flex;
+  flex-direction: row-reverse;
+  margin-right: 20rpx;
+  margin-top: 20rpx;
+}
+
+</style>
+<template>
+  <van-dropdown-menu>
+    <van-dropdown-item model:value="{{value}}" ref="value" @change="vanfiledchangehack($event)" options="{{ option }}" />
+  </van-dropdown-menu>
+  <div class="content">
+    <div class="t-center row">
+      <van-image round height="50" width="50" src="{{schedule.teacher.data.avatar}}" />
+    </div>
+    <div v-for="(item,index) in seats">
+      <div class="t-center row ">第{{index+1}} 排</div>
+      <div class="rowdetail">
+        <div v-for="itm in item" class="t-center">
+          <van-icon name="user-circle-o" size="100rpx" class="row {{itm.status}}" @click="chosePos(itm)" />
+          <div class="pos">{{itm.pos}}</div>
+        </div>
+      </div>
+    </div>
+    <div class="tip">
+      <div class="t-center">
+        <van-icon name="user-circle-o" size="100rpx" class="row mine" />
+        <div class="pos">我的</div>
+      </div>
+      <div class="t-center">
+        <van-icon name="user-circle-o" size="100rpx" class="row default" />
+        <div class="pos">可选</div>
+      </div>
+      <div class="t-center">
+        <van-icon name="user-circle-o" size="100rpx" class="row chosen" />
+        <div class="pos">已占用</div>
+      </div>
+    </div>
+  </div>
+  <van-toast id="van-toast" />
+  <van-submit-bar label="选择位置:" currency=" " decimal-length="0" price="{{ pos*100 }}" button-text="确认预约" bind:submit="submit" tip="{{schedule.start}} {{schedule.course.data.name}}">
+    <view slot="tip">取消预约请提前两个小时，预约未到馆将会影响您后续的预约~</view>
+  </van-submit-bar>
+</template>
+<script>
+import wepy from '@wepy/core'
+import event from 'event'
+import { mapState, mapGetters, mapMutations, mapActions } from '@wepy/x'
+import store from 'store'
+import Toast from '@/components/vant/toast/toast'
+import api from '@/api/schedule'
+import contract from '@/api/contract'
+import appoint from '@/api/appoint'
+import mixin from 'mixin'
+import eventHub from '@/common/eventHub';
+
+let toast = null
+wepy.page({
+  store,
+  mixins: [mixin],
+
+  data: {
+
+    schedule: null,
+    contracts: [],
+    value: 0,
+    option: [],
+    pos: 0,
+    appointId: 0,
+  },
+
+
+  computed: {
+    ...mapGetters(['isLogin', 'userId', 'memberId']),
+    seats() {
+      let arr = []
+      let index = 1
+      if (this.schedule) {
+        this.schedule.room.data.extension.forEach((e, idx) => {
+          for (let i = 0; i < e; i++) {
+            arr.push({
+              row: idx + 1,
+              pos: index++,
+              status: 'default',
+              color: "#999",
+              pic: this.default
+            })
+          }
+        })
+
+        this.schedule.appoint.data.forEach(e => {
+          arr[e.pos - 1].status = e.member_id == this.memberId || e.xcxuser.data.id == this.userId ? 'mine' : 'chosen'
+          arr[e.pos - 1].color = e.member_id == this.memberId || e.xcxuser.data.id == this.userId ? 'blue' : '#eee'
+        })
+      }
+      let cc = arr.reduce((res, item) => {
+        res[item.row] ? res[item.row].push(item) : (res[item.row] = [item])
+        return res
+      }, {})
+
+      let c = []
+      if (this.schedule) {
+        this.schedule.room.data.extension.forEach((e, idx) => {
+          c.push(cc[idx + 1])
+        })
+      }
+
+
+      return c
+    }
+  },
+  watch: {
+
+  },
+  methods: {
+    ...mapMutations([]),
+    chosePos(itm) {
+      if (itm.status == 'default') {
+
+        this.pos = itm.pos
+
+        this.schedule.appoint.data = this.schedule.appoint.data.filter(ee => {
+          if (ee.member_id == this.memberId || (ee.xcxuser && ee.xcxuser.data.id == this.userId))
+            return false
+          return true
+        })
+        let appoint = { member_id: this.memberId, pos: this.pos }
+        this.schedule.appoint.data.push(appoint)
+      }
+    },
+    async submit() {
+      if (!this.pos) {
+        Toast.fail('请先选择位置')
+        return
+      }
+      try {
+        if (this.appointId) {
+          await appoint.update(this.appointId, { pos: this.pos })
+        } else {
+          let ret = await appoint.store({ schedule_id: this.schedule.id, pos: this.pos, contract_id: this.value })
+          this.appointId = ret
+        }
+        Toast.success('预约成功')
+
+        eventHub.$emit('appoint-success', { schedule_id: this.schedule.id, appoint_id: this.appointId });
+
+      } catch (e) {
+        console.log(e)
+        Toast.fail(e)
+      }
+    }
+  },
+
+
+  async onShow() {
+    if (!this.isLogin)
+      wx.navigateTo({ url: `/pages/user/login` })
+    let rsp = await contract.index()
+    this.contracts = rsp.data
+    this.option = this.contracts.map(e => {
+      return { text: e.name, value: e.id }
+    })
+    this.value = this.option.length > 0 ? this.option[0].value : 0
+
+  },
+  async onLoad({ id }) {
+    let rsp = await api.show(id, { include: 'room,courseDetail,teacher,substitute,appoint.xcxuser,club' })
+    this.schedule = rsp.data
+    this.schedule.appoint.data.forEach(e => {
+      if (e.member_id == this.memberId || e.xcxuser.data.id == this.userId) {
+        this.pos = e.pos
+        this.appointId = e.id
+      }
+    })
+
+
+
+  }
+})
+
+</script>
+<config>
+  {
+  navigationBarTitleText: '',
+  usingComponents: {
+  "van-divider": "module:vant/divider/index",
+  "van-icon": "module:vant/icon/index",
+  "van-tag": "module:vant/tag/index",
+  "van-image": "module:vant/image/index",
+  "van-button": "module:vant/button/index",
+  "van-toast": "module:vant/toast/index",
+  "van-popup": "module:vant/popup/index",
+  "van-dropdown-menu": "module:vant/dropdown-menu/index",
+  "van-dropdown-item": "module:vant/dropdown-item/index",
+  "van-submit-bar": "module:vant/submit-bar/index",
+  }
+  }
+</config>
