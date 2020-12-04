@@ -40,7 +40,7 @@
     </van-popup>
     <van-image round width="200rpx" height="200rpx" fit="fill" src="/static/background.jpeg" class="logo" />
     <div v-if="login_type==2">
-      <van-field model:value="{{phone}}" ref="phone" placeholder="请输入手机号码" clearable required bind:click-icon="onClickIcon" @change="vanfiledchangehack($event)" :error-message="error1" />
+      <van-field model:value="{{phone}}" ref="phone" @change="vanfiledchangehack($event)" placeholder="请输入手机号码" clearable required bind:click-icon="onClickIcon" :error-message="error1" />
       <van-field :error-message="error2" model:value="{{ verify_code }}" ref="verify_code" @change="vanfiledchangehack($event)" required center clearable placeholder="请输入短信验证码" border="{{ false }}" use-button-slot>
         <van-button slot="button" size="small" type="primary" @tap="sendverify" v-if="!disabled">
           发送验证码
@@ -260,10 +260,12 @@ wepy.page({
 
 
 
-  async onLoad() {
-    this.$store.commit('bootStore')
-    let ret = await this.checkAuthed()
-    if (ret) await this.autoLogin()
+  async onLoad({ login_type }) {
+    this.login_type = login_type
+    if (login_type != 2) {
+      let ret = await this.checkAuthed()
+      if (ret) await this.autoLogin()
+    }
 
   }
 })

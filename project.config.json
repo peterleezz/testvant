@@ -62,6 +62,12 @@
           "pathName": "pages/index",
           "query": "id=656958",
           "scene": null
+        },
+        {
+          "name": "login",
+          "pathName": "pages/user/login",
+          "query": "login_type=2",
+          "scene": null
         }
       ]
     }
