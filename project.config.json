@@ -34,8 +34,8 @@
     "minifyWXSS": true
   },
   "compileType": "miniprogram",
-  "appid": "wx7a3d4813d3271e9b",
-  "projectname": "bujing",
+  "appid": "xxxxxxxx",
+  "projectname": "xxxxx",
   "miniprogramRoot": "weapp/",
   "simulatorType": "wechat",
   "simulatorPluginLibVersion": {},
