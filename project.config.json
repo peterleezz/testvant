@@ -34,7 +34,7 @@
     "minifyWXSS": true
   },
   "compileType": "miniprogram",
-  "appid": "xxxxxxxx",
+  "appid": "wx7a3d4813d3271e9b",
   "projectname": "xxxxx",
   "miniprogramRoot": "weapp/",
   "simulatorType": "wechat",
@@ -67,6 +67,41 @@
           "name": "login",
           "pathName": "pages/user/login",
           "query": "login_type=2",
+          "scene": null
+        },
+        {
+          "name": "pt",
+          "pathName": "pages/appoint/pt",
+          "query": "",
+          "scene": null
+        },
+        {
+          "name": "ptappoint",
+          "pathName": "pages/appoint/ptappoint",
+          "query": "id=189&teacher_name=Peter",
+          "scene": null
+        },
+        {
+          "name": "me",
+          "pathName": "pages/user/index",
+          "query": "id=189&teacher_name=Peter",
+          "scene": null
+        },
+        {
+          "name": "公共课记录",
+          "pathName": "pages/history/schedule",
+          "query": "",
+          "scene": null
+        },
+        {
+          "name": "pages/history/pt",
+          "pathName": "pages/history/pt",
+          "query": "",
+          "scene": null
+        },
+        {
+          "name": "我的会籍",
+          "pathName": "pages/user/contracts",
           "scene": null
         }
       ]

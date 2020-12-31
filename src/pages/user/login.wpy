@@ -127,6 +127,19 @@ wepy.page({
       this.error2 = ret2.message
       if (!(ret1.isValid && ret2.isValid)) return
       let data = { phone: this.phone, verify_code: this.verify_code }
+
+      const res = await wx.login()
+      const userInfo = await wx.getUserInfo()
+
+
+      data.code = res.code
+      data.avatar = userInfo.userInfo.avatarUrl
+      data.nickname = userInfo.userInfo.nickName
+      data.iv = userInfo.iv
+      data.encryptedData = userInfo.encryptedData
+      data.session_key = this.session_key
+
+
       try {
         toast = Toast.loading({
           message: '正在登陆...',
@@ -262,10 +275,10 @@ wepy.page({
 
   async onLoad({ login_type }) {
     this.login_type = login_type
-    if (login_type != 2) {
-      let ret = await this.checkAuthed()
-      if (ret) await this.autoLogin()
-    }
+    // if (login_type != 2) {
+    let ret = await this.checkAuthed()
+    if (ret) await this.autoLogin()
+    // }
 
   }
 })

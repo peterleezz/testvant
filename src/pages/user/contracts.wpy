@@ -1,0 +1,154 @@
+<style lang="less">
+</style>
+<template>
+  <van-collapse value="{{ activeNames }}" bind:change="onChange">
+    <van-collapse-item title="{{item.name}}" name="{{index +1}}" v-for="(item ,index) in list">
+      <van-row>
+        <van-col span="16">
+          <div>有效期：{{item.start_time}} -- {{item.end_time}}</div>
+          <div>状态：{{item.in_rest?'请假中':'运行中'}}</div>
+          <div>已请假次数：{{item.rest_count}}</div>
+          <div>已请假天数：{{item.rest_day1}}</div>
+        </van-col>
+        <div>
+          <van-col span="8" v-if="item.in_rest" @tap="unrest(item.id)">
+            <van-button type="warning">取消停卡</van-button>
+          </van-col>
+          <van-col span="8" v-else @tap="rest(item.id)">
+            <van-button type="primary" v-if="item.can_rest">自助停卡</van-button>
+            <van-button type="primary" v-else>付费停卡</van-button>
+          </van-col>
+        </div>
+      </van-row>
+    </van-collapse-item>
+  </van-collapse>
+  <van-empty description="暂无数据" v-if="list.length == 0" />
+  <van-toast id="van-toast" />
+  <van-dialog id="van-dialog" />
+</template>
+<script>
+import wepy from '@wepy/core'
+import event from 'event'
+import { mapState, mapGetters, mapMutations, mapActions } from '@wepy/x'
+import store from 'store'
+import Toast from '@/components/vant/toast/toast'
+import Dialog from '@/components/vant/dialog/dialog'
+import api from '@/api/contract'
+import dateformat from '@/common/Date'
+import pagination from 'mixin/pagination'
+import { phoneR, verifyR } from '@/common/Rules'
+let toast = null
+wepy.page({
+  store,
+
+
+  data: {
+    list: [],
+    activeNames: [1],
+  },
+
+
+  computed: {
+    ...mapGetters([])
+  },
+  watch: {
+
+  },
+  methods: {
+    ...mapMutations([]),
+    async unrest(id) {
+      await Dialog.confirm({
+        title: '确认取消请假',
+        message: '取消请假后卡立刻可以开始使用，有效期将提前。',
+      })
+      await api.unrest(id)
+      Toast.success('操作完成')
+      let { data } = await api.index()
+      this.list = data
+    },
+    async rest(id) {
+      console.log(id)
+      await Dialog.confirm({
+        title: '确认请假',
+        message: '确认请假后，将从明日起自动停卡30天，到期后自动开卡，可提前结束请假。',
+      })
+
+      try {
+        let start_time = dateformat.format(dateformat.addDay(new Date(), 0), 'yyyy-MM-dd')
+        let end_time = dateformat.format(dateformat.addDay(new Date(), 30), 'yyyy-MM-dd')
+
+        let res = await api.rest(id, { start_time, end_time })
+        console.log('rest res', res)
+        if (res && res.timeStamp) {
+          await wx.requestPayment(res)
+        }
+        Toast.success('操作完成')
+        wx.navigateBack()
+        // let { data } = await api.index()
+        // this.list = data
+
+
+      } catch (ex) {
+        Toast.fail(ex)
+      }
+
+      // Dialog.confirm({
+      // title: '确认请假',
+      // message: '确认请假后，将从明日起自动停卡30天，到期后自动开卡，可提前结束请假。',
+      // })
+      // .then(() => {
+      // try {
+      // res = await api.rest(id)
+      // if (res.timeStamp) {
+      // await wepy.requestPayment(res)
+      // }
+      // Toast.success('操作完成')
+      // let { data } = await api.index()
+      // this.list = data
+      // } catch () {
+      // }
+
+      // })
+      // .catch(() => {
+      // // on cancel
+      // });
+
+
+    },
+    onChange(event) {
+      console.log(event)
+      this.activeNames = event.$wx.detail
+    }
+  },
+
+
+
+  async onLoad(options) {
+    // this.page = { list: [{ schedule: 'aaaaa', room: 'bbbb', time: '2020-01-01' }, ] }
+    let { data } = await api.index()
+    this.list = data
+
+  }
+})
+
+</script>
+<config>
+  {
+  navigationBarTitleText: '我的会籍合同',
+  enablePullDownRefresh: true,
+  usingComponents: {
+  "van-collapse": "module:vant/collapse/index",
+  "van-collapse-item": "module:vant/collapse-item/index",
+  "van-image": "module:vant/image/index",
+  "van-toast": "module:vant/toast/index",
+  "van-popup": "module:vant/popup/index",
+  "van-empty": "module:vant/empty/index",
+  "van-button": "module:vant/button/index",
+  "van-count-down": "module:vant/count-down/index",
+  "van-cell-group": "module:vant/cell-group/index",
+  "van-row": "module:vant/row/index",
+  "van-col": "module:vant/col/index",
+  "van-dialog": "module:vant/dialog/index"
+  }
+  }
+</config>

@@ -6,6 +6,8 @@ export default {
 
   },
   methods: {
+
+
     //不知道为啥，vantweapp的双向绑定不起作用，只能手动hack一下。
     vanfiledchangehack(e) {
       this[e.target.dataset.ref] = e.$wx.detail

@@ -145,7 +145,7 @@ wepy.page({
       this.schedules.data.forEach(ee => {
         ee.appoint.data.forEach(e => {
 
-          if (e.member_id == this.memberId || (e.xcxuser && e.xcxuser.data.id == this.userId)) {
+          if (e.member_id == this.memberId || (e.xcxuser && this.userId && e.xcxuser.data.id == this.userId)) {
             ee.isMine = true
             ee.appoint_id = e.id
           }
@@ -173,6 +173,7 @@ wepy.page({
     for (let i = 0; i < 7; i++) {
       let date = dateformat.addDay(new Date(), i)
       let day = dateformat.format(date, 'MM-dd')
+
       let week = dateformat.dayOfWeek(date)
       this.array.push({ id: i, title: `${week}`, subtitle: day, value: dateformat.format(date, 'yyyy-MM-dd') })
     }

@@ -8,9 +8,14 @@
   box-sizing: border-box;
 }
 
-.t-center
-{
-  text-align:center;
+.t-center {
+  text-align: center;
+}
+
+.h-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 page {
@@ -28,6 +33,8 @@ page {
   -webkit-font-smoothing: antialiased;
 }
 
+@import '~vant/common/index.wxss';
+
 </style>
 <script>
 import wepy from '@wepy/core';
@@ -35,7 +42,7 @@ import eventHub from './common/eventHub';
 import vuex from '@wepy/x';
 import store from 'store'
 import { mapState, mapGetters, mapMutations, mapActions } from '@wepy/x'
-// wepy.use(vuex);
+wepy.use(vuex);
 
 
 
@@ -75,9 +82,41 @@ wepy.app({
   pages: [
   'pages/appoint/index',
   'pages/appoint/seat',
+  'pages/appoint/pt',
+  'pages/appoint/ptappoint',
   'pages/user/login',
+  'pages/user/contracts',
+  'pages/user/index',
+  'pages/history/schedule',
+  'pages/history/pt',
   'pages/index',
   ],
+  tabBar: {
+  color: '#bfbfbf',
+  selectedColor: '#79a9ac',
+  backgroundColor: '#fff',
+  borderStyle: 'black',
+  list: [
+  {
+  pagePath: 'pages/appoint/index',
+  text: '公开课',
+  iconPath: 'static/home_unclick.png',
+  selectedIconPath: 'static/home_click.png',
+  },
+  {
+  pagePath: 'pages/appoint/pt',
+  text: '私教课',
+  iconPath: 'static/playCard.png',
+  selectedIconPath: 'static/playCard-click.png',
+  },
+  {
+  pagePath: 'pages/user/index',
+  text: '我的',
+  iconPath: 'static/me_unclick.png',
+  selectedIconPath: 'static/me_click.png',
+  }
+  ]
+  },
   window: {
   backgroundTextStyle: 'light',
   navigationBarBackgroundColor: '#fff',

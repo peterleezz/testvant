@@ -1,0 +1,82 @@
+<style lang="less">
+.bg {
+
+  width: 100%;
+}
+
+</style>
+<template>
+  <image class="bg" mode="widthFix" src="http://sci.50yoga.cn/pics/2020/bujing_c600x500.jpg" />
+  <van-cell-group title="课程信息">
+    <van-cell is-link title="公共课记录" link-type="navigateTo" url="/pages/history/schedule" />
+    <van-cell is-link title="私教课记录" link-type="navigateTo" url="/pages/history/pt" />
+  </van-cell-group>
+  <van-cell-group title="个人信息">
+    <van-cell is-link title="我的会籍" link-type="navigateTo" url="/pages/user/contracts" />
+    <van-cell is-link title="退出登录" link-type="navigateTo" url="/pages/user/login?login_type=2" />
+  </van-cell-group>
+  <van-toast id="van-toast" />
+</template>
+<script>
+import wepy from '@wepy/core'
+import event from 'event'
+import { mapState, mapGetters, mapMutations, mapActions } from '@wepy/x'
+import store from 'store'
+import Toast from '@/components/vant/toast/toast'
+import api from '@/api/user'
+import mixin from 'mixin'
+
+import { phoneR, verifyR } from '@/common/Rules'
+let toast = null
+wepy.page({
+  store,
+  mixins: [mixin],
+
+  data: {
+
+
+  },
+
+
+  computed: {
+    ...mapGetters(['isLogin'])
+  },
+  watch: {
+
+  },
+  methods: {
+    ...mapMutations([]),
+
+    async fct() {
+
+    }
+  },
+
+
+  async onShow() {
+    console.log('onShow ', this.isLogin)
+    if (!this.isLogin)
+      wx.navigateTo({ url: `/pages/user/login` })
+
+
+  },
+  async onLoad() {
+
+  }
+})
+
+</script>
+<config>
+  {
+  navigationBarTitleText: '',
+  usingComponents: {
+  "van-field": "module:vant/field/index",
+  "van-cell": "module:vant/cell/index",
+  "van-image": "module:vant/image/index",
+  "van-toast": "module:vant/toast/index",
+  "van-popup": "module:vant/popup/index",
+  "van-count-down": "module:vant/count-down/index",
+  "van-cell-group": "module:vant/cell-group/index",
+  }
+  }
+</config>

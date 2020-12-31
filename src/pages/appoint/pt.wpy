@@ -1,1 +1,118 @@
+<style lang="less">
+  .container {
+  flex-direction: row;
+  padding:20rpx;
+}
 
+.content{
+display:block;
+width:80%;
+font-size:14px;
+ 
+}
+
+.van-tag{
+	margin:10rpx;
+}
+.van-multi-ellipsis--l2{
+	color:#666;
+	margin:5rpx;
+}
+</style>
+<template>
+  <div v-for="(item, index) in list">
+    <div class="container" @tap="nav(item.id)">
+      <div class="t-center">
+        <van-image round height="90" width="90" src="{{item.avatar}}" class="pic" />
+        <div>{{item.name_en}}</div>
+      </div>
+      <div class="content">
+        <div v-if="item.good_at.length > 0">
+          <span v-for="(itm) in item.good_at">
+            <van-tag type="success">{{itm}}</van-tag>
+          </span>
+        </div>
+        <div class="van-multi-ellipsis--l2" v-if="item.teach_age > 0 ">{{item.teach_age}} 年教学经验</div>
+        <div class="van-multi-ellipsis--l2" v-if="item.teach_experience !='' ">{{item.teach_experience}}</div>
+        <div class="van-multi-ellipsis--l2" v-if="item.train_experience !='' ">{{item.train_experience}}</div>
+      </div>
+      <div class="h-center">
+        <van-icon name="arrow" />
+      </div>
+    </div>
+    <van-divider dashed />
+  </div>
+  <van-empty description="暂无可预约老师" v-if="list.length == 0" />
+  <van-toast id="van-toast" />
+  <van-dialog id="van-dialog" />
+</template>
+<script>
+import wepy from '@wepy/core'
+import event from 'event'
+import { mapState, mapGetters, mapMutations, mapActions } from '@wepy/x'
+import store from 'store'
+import Toast from '@/components/vant/toast/toast'
+import Dialog from '@/components/vant/dialog/dialog';
+import api from '@/api/teachers'
+import appoint from '@/api/appoint'
+import mixin from 'mixin'
+import dateformat from '@/common/Date'
+import eventHub from '@/common/eventHub';
+import { phoneR, verifyR } from '@/common/Rules'
+let toast = null
+wepy.page({
+  store,
+  mixins: [mixin],
+
+  data: {
+    list: []
+  },
+
+
+  computed: {
+    ...mapGetters(['userId', 'memberId']),
+
+  },
+  watch: {
+
+  },
+  methods: {
+    ...mapMutations([]),
+    nav(id) {
+      wx.navigateTo({ url: `ptappoint?id=${id}` })
+    }
+
+  },
+
+
+
+  async onLoad() {
+
+
+    let rsp = await api.index()
+    this.list = rsp.data
+    console.log(this.list)
+  }
+})
+
+</script>
+<config>
+  {
+  navigationBarTitleText: '预约私教课程',
+  usingComponents: {
+  "van-cell": "module:vant/cell/index",
+  "van-icon": "module:vant/icon/index",
+  "van-divider": "module:vant/divider/index",
+  "van-panel": "module:vant/panel/index",
+  "van-empty": "module:vant/empty/index",
+  "van-tag": "module:vant/tag/index",
+  "van-button": "module:vant/button/index",
+  "van-image": "module:vant/image/index",
+  "van-toast": "module:vant/toast/index",
+  "van-popup": "module:vant/popup/index",
+  "van-row": "module:vant/row/index",
+  "van-col": "module:vant/col/index",
+  "van-dialog": "module:vant/dialog/index"
+  }
+  }
+</config>

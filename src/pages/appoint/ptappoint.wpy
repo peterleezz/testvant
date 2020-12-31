@@ -1,0 +1,190 @@
+<style lang="less">
+  .picker{
+   position: fixed;
+    left: 0px;
+    bottom: 0px;
+    width: 100%;
+
+}
+.van-col{
+  text-align:center;
+}
+.van-button{
+  margin-top:250rpx;
+  z-index:-1;
+}
+</style>
+<template>
+  <van-cell-group>
+    <van-field value="{{ teacher_name }}" label="上课老师" clearable disabled />
+    <van-field value="{{ contract_name }}" label="选择课程" clearable @tap="show_contract_picker=true" />
+    <van-field value="{{ appoint_date }}" label="上课日期" clearable @tap="show_date_picker=true" />
+    <van-field value="{{ appoint_time }}" label="选择时间" clearable disabled />
+    <van-row>
+      <van-col span="6" v-for="(itm, idx) in   timefields">
+        <van-tag @tap="confirmtime(itm.time)" color="{{itm.isAppointed?'#aaa':''}}" type="{{itm.isAppointed?'':'primary'}}" class="" plain="{{itm.isAppointed?false:true}}">{{itm.time}}</van-tag>
+      </van-col>
+    </van-row>
+    <van-picker class="picker" v-if="show_contract_picker" show-toolbar title="标题" columns="{{ contract_colums }}" bind:cancel="show_contract_picker=false" bind:confirm="onConfirm" />
+    <van-datetime-picker v-if="show_date_picker" class="picker" bind:cancel="cancel" type="date" value="{{ currentDate }}" min-date="{{ currentDate }}" bind:confirm="confirm" />
+  </van-cell-group>
+  <div @tap="doAppoint">
+    <van-button type="primary" size="large" round>确认预约</van-button>
+  </div>
+  <van-toast id="van-toast" />
+</template>
+<script>
+import wepy from '@wepy/core'
+import event from 'event'
+import { mapState, mapGetters, mapMutations, mapActions } from '@wepy/x'
+import store from 'store'
+import Toast from '@/components/vant/toast/toast'
+import ptcontract from '@/api/ptcontract'
+import api from '@/api/ptappoint'
+import mixin from 'mixin'
+import dateformat from '@/common/Date'
+import { timeR, contractR } from '@/common/Rules'
+let toast = null
+wepy.page({
+  store,
+  mixins: [mixin],
+
+  data: {
+
+    currentDate: new Date().getTime(),
+    teacher_name: '',
+    appoint_time: '',
+    appoint_date: dateformat.format(new Date(), 'yyyy-MM-dd'),
+    show_date_picker: false,
+    id: 0,
+    contract_name: '',
+    show_contract_picker: false,
+    timefields: [],
+    timefields_o: [],
+    contracts: [],
+    contract_index: 0,
+
+  },
+
+
+  computed: {
+    ...mapGetters([]),
+    contract_name() {
+      return this.contracts.length > 0 ? this.contracts[this.contract_index].name : '';
+    },
+    contract_colums() {
+      return this.contracts.map(e => e.name)
+    }
+  },
+  watch: {
+
+  },
+  methods: {
+    ...mapMutations([]),
+    async doAppoint() {
+      let rsp = this.check(contractR, this.contract_name)
+
+      if (!rsp.isValid) {
+        Toast.fail(rsp.message)
+        return
+      }
+      let { isValid, message } = this.check(timeR, this.appoint_time)
+
+      if (!isValid) {
+        Toast.fail(message)
+        return
+      }
+
+
+      try {
+        let appointDate = this.appoint_date + ' ' + this.appoint_time
+
+
+        await api.create({
+          contract_id: this.contracts[this.contract_index].id,
+          appoint_date: appointDate,
+          teacher_id: this.id,
+
+        })
+
+        Toast.success('预约成功')
+
+      } catch (e) {
+        Toast.fail(e)
+      }
+      console.log(this.id, this.appoint_date, this.appoint_time, this.contract_index)
+
+    },
+    confirmtime(e) {
+
+      this.appoint_time = e
+      this.timefields = this.timefields_o.map(ee => {
+        let v = JSON.parse(JSON.stringify(ee))
+        v.isAppointed = v.time == e ? true : v.isAppointed
+        return v
+      })
+
+    },
+    onInput(event) {
+      this.setData({
+        currentDate: event.detail,
+      })
+    },
+    cancel() {
+      this.show_date_picker = false
+    },
+    onConfirm(event) {
+      const { picker, value, index } = event.$wx.detail
+      this.contract_index = index
+      console.log(event)
+      this.show_contract_picker = false
+    },
+    async confirm(item) {
+      this.appoint_date = dateformat.format(new Date(item.$wx.detail), 'yyyy-MM-dd')
+      let { data } = await api.timefields(id, { date: this.appoint_date })
+      this.timefields = data
+      this.timefields_o = data
+      this.show_date_picker = false
+
+    }
+  },
+
+
+
+  async onLoad({ id, teacher_name }) {
+    this.id = id
+    this.teacher_name = teacher_name
+    let { data } = await api.timefields(id)
+    this.timefields = data
+    this.timefields_o = data
+    console.log(data)
+
+    let rsp = await ptcontract.index({ include: 'teachers' })
+    this.contracts = rsp.data.filter(e => {
+      let teacher = e.teachers.data.filter(ee => ee.id == this.id)
+      return teacher.length > 0
+
+    })
+  }
+})
+
+</script>
+<config>
+  {
+  navigationBarTitleText: '',
+  usingComponents: {
+  "van-field": "module:vant/field/index",
+  "van-tag": "module:vant/tag/index",
+  "van-row": "module:vant/row/index",
+  "van-col": "module:vant/col/index",
+  "van-button": "module:vant/button/index",
+  "van-cell": "module:vant/cell/index",
+  "van-datetime-picker": "module:vant/datetime-picker/index",
+  "van-picker": "module:vant/picker/index",
+  "van-toast": "module:vant/toast/index",
+  "van-popup": "module:vant/popup/index",
+  "van-count-down": "module:vant/count-down/index",
+  "van-cell-group": "module:vant/cell-group/index",
+  }
+  }
+</config>

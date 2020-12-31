@@ -47,6 +47,9 @@ export default class Pagination {
     try {
       Object.assign(param, this.args)
       const { data, meta } = await http.get(this.url, param)
+      console.log('xxxxxxxxxx')
+      console.log(data)
+      console.log(meta)
       this.meta = meta
       const pagination = meta.pagination
       this.count = pagination.count

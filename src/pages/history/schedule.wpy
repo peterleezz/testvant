@@ -1,0 +1,68 @@
+<style lang="less">
+</style>
+<template>
+  <van-cell is-link title="{{ item.schedule.data.course.data.name}}({{ item.schedule.data.room.data.name}} {{ item.pos}}号位)" value=" {{ item.schedule.data.start}}" v-for="item in page.list" />
+  <van-empty description="暂无数据" v-if="page.list.length == 0" />
+</template>
+<script>
+import wepy from '@wepy/core'
+import event from 'event'
+import { mapState, mapGetters, mapMutations, mapActions } from '@wepy/x'
+import store from 'store'
+import Toast from '@/components/vant/toast/toast'
+import api from '@/api/appoint'
+
+import pagination from 'mixin/pagination'
+import { phoneR, verifyR } from '@/common/Rules'
+let toast = null
+wepy.page({
+  store,
+  mixins: [pagination],
+
+  data: {
+
+
+  },
+
+
+  computed: {
+    ...mapGetters([])
+  },
+  watch: {
+
+  },
+  methods: {
+    ...mapMutations([]),
+
+    async fct() {
+
+    }
+  },
+
+
+
+  async onLoad(options) {
+    // this.page = { list: [{ schedule: 'aaaaa', room: 'bbbb', time: '2020-01-01' }, ] }
+    this.page = api.page({ order: 'desc', include: 'schedule.room,schedule.club', ...options })
+    console.log(this.page)
+    await this.next()
+  }
+})
+
+</script>
+<config>
+  {
+  navigationBarTitleText: '公共课约课记录',
+  enablePullDownRefresh: true,
+  usingComponents: {
+  "van-field": "module:vant/field/index",
+  "van-cell": "module:vant/cell/index",
+  "van-image": "module:vant/image/index",
+  "van-toast": "module:vant/toast/index",
+  "van-popup": "module:vant/popup/index",
+  "van-empty": "module:vant/empty/index",
+  "van-count-down": "module:vant/count-down/index",
+  "van-cell-group": "module:vant/cell-group/index",
+  }
+  }
+</config>
