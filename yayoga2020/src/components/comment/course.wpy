@@ -1,0 +1,111 @@
+<style lang="less">
+.textarea {
+  height: 180rpx;
+  width: 90vw;
+  margin: 20rpx auto 20rpx auto;
+  background-color: #eee;
+  padding: 10rpx;
+  border-radius: 10rpx;
+  font-size: 28rpx;
+}
+
+.rate-container .rate-icon__stared {
+  color: #ff8c96;
+}
+
+.icon-share {
+  color: #ff8c96;
+}
+
+.share-pop .popup-mask {
+  z-index: 11;
+}
+
+.rate-container__horizontal {
+  -webkit-justify-content: center;
+  justify-content: center;
+}
+</style>
+<template>
+  <popup :show.sync="show" position="bottom">
+    <form slot="popContainer" @submit="submit" report-submit>
+      <view class="flex flex-between padding-5">
+        <icon type="error" handleTap="close" />
+        <text>心得总结</text>
+        <icon1 type="share" handleTap="share" />
+      </view>
+      <rate title="" :value.sync="star" noDesc="true"></rate>
+      <view class="text-align-center font-16 font-bold">{{ course.course_name }}</view>
+      <view class="text-align-center gray-txt">{{ course.start }} / {{ course.teacher_name }}</view>
+      <textarea fixed class="textarea" maxlength="200" placeholder="这个课程好棒啊" name="content" />
+      <button class="btn margin-bottom-20 btn-circle btn-sci" formType="submit">确认</button>
+    </form>
+  </popup>
+  <share />
+</template>
+<script>
+import wepy from 'wepy'
+import popup from '@/components/popup/index'
+import icon from '@/components/icon/index'
+import rate from '@/components/rate/index'
+import panel from '@/components/panel/index'
+import Tips from '@/utils/Tips'
+import comment from '@/api/comment'
+import share from '@/components/common/share'
+import form from '@/mixins/input'
+export default class commentsCourse extends wepy.component {
+  props = {
+    show: {
+      type: Boolean,
+      default: false
+    },
+    course: {
+      type: Object,
+      default: {},
+      twoWay: true
+    }
+  }
+  mixins = [form]
+  components = {
+    popup,
+    icon,
+    icon1: icon,
+    rate,
+    share,
+    panel
+  }
+
+  data = {
+    star: 5
+  }
+
+  methods = {
+    submit: async e => {
+      let content = '这个课程好棒啊'
+      if (e.detail.value.content !== '') {
+        content = e.detail.value.content
+      }
+      try {
+        await comment.add({ type: 'TeacherClass', obj_id: this.course.course_id, content, star: this.star })
+        Tips.success('评论成功')
+      } catch (err) {
+        Tips.error(err)
+      }
+    }
+  }
+
+  events = {
+    close: e => {
+      this.show = false
+    },
+    share: e => {
+      this.$invoke('share', 'show')
+    },
+    drawSharePic: () => {
+      let params = { path: 'schedule', id: this.course.schedule_id }
+      this.$parent.$preload('params', params)
+      this.$parent.$navigate('/pages/common/share')
+    }
+  }
+}
+</script>

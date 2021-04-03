@@ -1,0 +1,485 @@
+<style lang="less">
+@import '../../less/color.less';
+@import '../../less/mixins.less';
+
+.mask {
+  // @btn-bg: #f77b1b;
+
+  .mask-modal {
+    background-color: #fff;
+    border-radius: 10rpx;
+    margin: 25vh 72rpx 0 72rpx;
+
+    .mask-title {
+      font-size: 36rpx;
+      color: #000;
+      line-height: 36rpx;
+      text-align: center;
+      padding-top: 40rpx;
+      padding-bottom: 20rpx;
+      border-bottom: 1rpx solid @border;
+    }
+
+    .mask-content {
+      padding: 0 40rpx;
+      flex-direction: column;
+
+      .img {
+        height: 60rpx;
+        width: 60rpx;
+        margin-top: 20rpx;
+      }
+
+      .tip-content {
+        width: 100%;
+        color: #000;
+        border-bottom: 1rpx solid @border;
+        font-size: 28rpx;
+        line-height: 28rpx;
+        padding: 20rpx 0;
+      }
+
+      .permission {
+        width: 100%;
+        padding-top: 16rpx;
+        padding-bottom: 60rpx;
+        justify-content: flex-start;
+
+        .point {
+          background-color: #888;
+          height: 12rpx;
+          width: 12rpx;
+          border-radius: 50%;
+          margin: 0 6rpx;
+        }
+
+        .permission-desc {
+          font-size: 24rpx;
+          line-height: 24rpx;
+          color: #999;
+        }
+      }
+    }
+
+    .mask-btn-group {
+      justify-content: center;
+      padding-bottom: 20rpx;
+
+      button {
+        margin: 0;
+        padding: 0;
+        border-radius: 0;
+        width: 50rpx;
+        background-color: #fff;
+        font-size: 36rpx;
+      }
+
+      .manual-btn {
+        width: 200rpx;
+        height: 80rpx;
+        line-height: 80rpx;
+        border-radius: 10rpx;
+        background-color: #c5c5c5;
+        color: #fff;
+        margin-right: 20rpx;
+      }
+
+      .only-btn {
+        width: 200rpx;
+        height: 80rpx;
+        line-height: 80rpx;
+        border-radius: 10rpx;
+        background: @theme;
+        color: #fff;
+      }
+    }
+  }
+
+  .login-modal {
+    margin-left: 30rpx;
+    margin-right: 30rpx;
+    position: relative;
+    .flex-container(column);
+
+    .icon-close {
+      position: absolute;
+      top: 10rpx;
+      right: 10rpx;
+      font-size: 24rpx;
+      color: #888;
+    }
+
+    .mask-title {
+      padding: 0;
+      border: none;
+      height: 140rpx;
+      line-height: 140rpx;
+    }
+
+    .login-form {
+      width: 590rpx;
+    }
+
+    .form-item {
+      position: relative;
+      width: 590rpx;
+      height: 88rpx;
+      border-radius: 10rpx;
+      border: solid 2rpx #dbdbdb;
+      .flex-container(row, flex-start);
+
+      .iconfont {
+        margin: 0 28rpx;
+        font-size: 38rpx;
+        color: #484848;
+      }
+
+      .input {
+        height: 30rpx;
+        font-size: 28rpx;
+        width: 500rpx;
+        color: #8e8e8e;
+      }
+
+      .code-btn {
+        position: absolute;
+        right: 10rpx;
+        z-index: 999;
+        width: 164rpx;
+        height: 48rpx;
+        line-height: 48rpx;
+        text-align: center;
+        font-size: 24rpx;
+        color: #fff;
+        background-color: @theme;
+        border-radius: 10rpx;
+      }
+    }
+
+    .code-item {
+      margin-top: 24rpx;
+    }
+
+    .self-motion {
+      font-size: 32rpx;
+      padding: 20rpx;
+      text-align: center;
+    }
+
+    .login-btn {
+      width: 590rpx;
+      height: 90rpx;
+      line-height: 90rpx;
+      background-color: @theme;
+      border-radius: 10rpx;
+      font-size: 36rpx;
+      color: #fff;
+      margin-bottom: 30rpx;
+    }
+  }
+}
+</style>
+<template>
+  <view hidden="{{!(autoAuth || autoAuthByPhone || manualAuth) || isLogin}}" class="mask">
+    <view class="mask-modal" hidden="{{!autoAuth}}">
+      <view class="mask-title">提示</view>
+      <view class="mask-content flex">
+        <image class="img" mode="aspectFill" src="{{authLogo}}"></image>
+        <view class="tip-content">{{ appName }}申请获得你的用户信息</view>
+        <view class="permission flex">
+          <view class="point"></view>
+          <view class="permission-desc">请点击允许，以获取更多资讯</view>
+        </view>
+      </view>
+      <view class="mask-btn-group flex">
+        <button class="ok-btn only-btn" openType="getUserInfo" @getuserinfo="getUserInfo">允许</button>
+      </view>
+    </view>
+    <view class="mask-modal" hidden="{{!autoAuthByPhone || autoAuth}}">
+      <view class="mask-title">提示</view>
+      <view class="mask-content flex">
+        <image class="img" mode="aspectFill" src="{{authLogo}}"></image>
+        <view class="tip-content" style="margin-bottom:30rpx;text-align:center">使用微信手机号自动登录</view>
+      </view>
+      <view class="mask-btn-group flex">
+        <button class="ok-btn manual-btn" @tap="manualBtn">手机登录</button>
+        <button class="ok-btn only-btn" openType="getPhoneNumber" @getphonenumber="getPhoneInfo">允许</button>
+      </view>
+    </view>
+    <view wx:if="{{manualAuth}}" class="mask-modal login-modal">
+      <icon1 type="close" handleTap="hideManual"></icon1>
+      <form @submit="onSubmitForm">
+        <view class="mask-title">欢迎登录</view>
+        <view class="login-form">
+          <view class="form-item">
+            <icon2 type="mobile"></icon2>
+            <input name="phone" class="input" placeholder="请填写手机号码" @input="getPhone" />
+          </view>
+          <view class="form-item code-item">
+            <icon3 type="verify-code"></icon3>
+            <input name="verify_code" class="input" placeholder="请输入验证码" />
+            <view hidden="{{isGetting}}" class="code-btn" @tap.stop="getVerifyCode">获取验证码</view>
+            <view hidden="{{!isGetting}}" class="code-btn">{{ second }}s后重发</view>
+          </view>
+          <view @tap="useweixin" class="self-motion">自动使用微信号码登录</view>
+        </view>
+        <button hover-class="none" formType="submit" class="login-btn">登录</button>
+      </form>
+    </view>
+  </view>
+</template>
+<script>
+import wepy from 'wepy'
+import { authLogo, appName } from '@/utils/Config'
+import { checkPhone } from '@/utils/Utils'
+import auth from '@/api/auth'
+
+import Avatar from '@/components/avatar/index'
+import Icon from '@/components/icon/index'
+import Tips from '@/utils/Tips'
+export default class Auth extends wepy.component {
+  props = {
+    autoAuth: {
+      type: Boolean,
+      default: false,
+      twoWay: true
+    },
+    autoAuthByPhone: {
+      type: Boolean,
+      default: false,
+      twoWay: true
+    },
+    manualAuth: {
+      type: Boolean,
+      default: false,
+      twoWay: true
+    },
+    handleAuthed: {
+      type: String,
+      default: ''
+    }
+  }
+
+  components = {
+    Avatar,
+    icon1: Icon,
+    icon2: Icon,
+    icon3: Icon
+  }
+
+  computed = {}
+
+  data = {
+    authLogo,
+    appName,
+    phone: null,
+    isGetting: false,
+    second: 120,
+    hideMask: true,
+    isLogin: true,
+    timer: null
+  }
+
+  watch = {
+    manualAuth: (nv, ov) => {
+      if (nv) {
+        this.isLogin = false
+        this.$apply()
+      }
+    },
+    autoAuthByPhone: (nv, ov) => {
+      if (nv === true && ov === false) {
+        this.isLogin = false
+        this.$apply()
+      }
+    }
+  }
+
+  methods = {
+    getPhone: e => {
+      this.phone = e.detail.value
+    },
+    useweixin: e => {
+      this.manualAuth = false
+      this.autoAuthByPhone = true
+    },
+    getVerifyCode: async e => {
+      try {
+        if (!checkPhone(this.phone)) {
+          throw new Error('手机号码有误')
+        }
+        await auth.code(this.phone)
+        Tips.toast('验证码已发送')
+        this.isGetting = true
+        this.countdown(120)
+        this.$apply()
+      } catch (e) {
+        Tips.error(e.message)
+      }
+    },
+    onSubmitForm: async e => {
+      this.login(e)
+      this.$apply()
+    },
+    manualBtn: e => {
+      this.manualAuth = true
+      this.autoAuthByPhone = false
+    },
+    getPhoneInfo: async e => {
+      if (e.detail.errMsg !== 'getPhoneNumber:ok') {
+        this.manualAuth = true
+        this.autoAuthByPhone = false
+        return
+      }
+      this.loginByPhone(e)
+      this.$apply()
+    },
+    getUserInfo: async e => {
+      if (e.detail.errMsg !== 'getUserInfo:ok') {
+        return
+      }
+      this.autoLogin()
+      this.$apply()
+    }
+  }
+
+  events = {
+    hideManual: e => {
+      this.manualAuth = false
+    }
+  }
+
+  async loginByPhone(e) {
+    this.autoAuthByPhone = false
+    const res = await wepy.login()
+    let data = e.detail
+    data.code = res.code
+    const { authSetting } = await wepy.getSetting()
+    if (authSetting['scope.userInfo']) {
+      const userInfo = await wepy.getUserInfo()
+      data.avatar = userInfo.userInfo.avatarUrl
+      data.nickname = userInfo.userInfo.nickName
+    }
+    data.recommend_id = wepy.getStorageSync('recommendId')
+    data.channel_id = wepy.getStorageSync('channelId')
+    try {
+      const token = await auth.loginByPhone(data)
+      wepy.setStorageSync('token', token)
+      if (token) {
+        console.log('auto login by phone...')
+        if (this.handleAuthed !== '') {
+          this.$emit(this.handleAuthed)
+        }
+        this.isLogin = true
+      }
+      this.hideMask = true
+    } catch (e) {
+      console.log(e)
+      Tips.error('自动登录失败，请手动登录')
+      this.manualAuth = true
+      this.autoAuthByPhone = false
+    }
+    this.$apply()
+  }
+
+  async login(e) {
+    try {
+      if (!checkPhone(e.detail.value.phone)) {
+        throw new Error('手机号码有误')
+      }
+      if (e.detail.value.verify_code === '') {
+        throw new Error('验证码不能为空')
+      }
+      const res = await wepy.login()
+      let data = e.detail.value
+      data.code = res.code
+      const { authSetting } = await wepy.getSetting()
+      if (authSetting['scope.userInfo']) {
+        const userInfo = await wepy.getUserInfo()
+        data.avatar = userInfo.userInfo.avatarUrl
+        data.nickname = userInfo.userInfo.nickName
+      }
+      data.recommend_id = wepy.getStorageSync('recommendId')
+      data.channel_id = wepy.getStorageSync('channelId')
+      const token = await auth.login(data)
+      wepy.setStorageSync('token', token)
+      if (token) {
+        console.log('manual login...')
+        this.autoAuthByPhone = false
+        this.manualAuth = false
+        this.isLogin = true
+        if (this.handleAuthed !== '') {
+          this.$emit(this.handleAuthed)
+        }
+      }
+      this.$apply()
+    } catch (e) {
+      Tips.error(e.message)
+    }
+  }
+
+  async autoLogin() {
+    this.autoAuth = false
+    const res = await wepy.login()
+    const userInfo = await wepy.getUserInfo()
+    let data = {}
+    data.code = res.code
+    data.avatar = userInfo.userInfo.avatarUrl
+    data.nickname = userInfo.userInfo.nickName
+    data.iv = userInfo.iv
+    data.encryptedData = userInfo.encryptedData
+    data.recommend_id = wepy.getStorageSync('recommendId')
+    data.channel_id = wepy.getStorageSync('channelId')
+    try {
+      const token = await auth.autoLogin(data)
+      wepy.setStorageSync('token', token)
+      if (token) {
+        this.autoAuthByPhone = false
+        console.log('auto login...')
+        this.isLogin = true
+        if (this.handleAuthed !== '') {
+          this.$emit(this.handleAuthed)
+        }
+      } else {
+        this.autoAuthByPhone = true
+      }
+    } catch (e) {
+      this.autoAuthByPhone = true
+    }
+    this.$apply()
+  }
+
+  countdown(count) {
+    let second = this.second
+    if (second === 0) {
+      this.second = count
+      this.isGetting = false
+      clearTimeout(this.timer)
+      this.$apply()
+      return
+    }
+    this.timer = setTimeout(() => {
+      this.second = second - 1
+      this.$apply()
+      this.countdown(count)
+    }, 1000)
+  }
+
+  async onLoad() {
+    const token = wepy.getStorageSync('token')
+    if (!token) {
+      const { authSetting } = await wepy.getSetting()
+      if (authSetting['scope.userInfo'] && !this.manualAuth) {
+        this.autoLogin()
+      }
+      this.isLogin = false
+    } else {
+      this.isLogin = true
+      if (this.handleAuthed !== '') {
+        this.$emit(this.handleAuthed)
+      }
+    }
+    this.$apply()
+  }
+}
+</script>

@@ -1,0 +1,66 @@
+<script>
+import wepy from 'wepy'
+export default class CountDownMixin extends wepy.mixin {
+  data = {
+    day: '',
+    hour: '',
+    minute: '',
+    second: '',
+    totalSeconds: 0,
+    timer: null
+  }
+
+  countDown(deadline, duration = 1000) {
+    let arr = deadline.split(/[^0-9]/)
+    let deadTime = new Date(arr[0], arr[1] - 1, arr[2], arr[3], arr[4], arr[5])
+    let deadTimeMs = deadTime.getTime()
+    let now = new Date()
+    let countdown = deadTimeMs - now.getTime()
+    if (countdown <= 0) {
+      return
+    }
+    let { day, hour, minute, second } = this.formatCountDown(countdown)
+    this.day = day
+    this.hour = hour
+    this.minute = minute
+    this.second = second
+    this.timer = setTimeout(() => {
+      this.totalSeconds = parseInt(countdown / 1000)
+      this.$apply()
+      this.countDown(deadline)
+    }, duration)
+  }
+
+  formatCountDown(microSecond) {
+    // 倒计时总秒数
+    let second = Math.floor(microSecond / 1000)
+    // 小时
+    let hour = Math.floor(second / 3600)
+    // 天
+    let day = 0
+    if (hour >= 24) {
+      // 如果小时大于24，计算出天和小时
+      day = parseInt(hour / 24)
+      hour %= 24
+    }
+    // 分钟
+    let minute = this.fillZeroPrefix(Math.floor((second - (day * 24 + hour) * 3600) / 60))
+    // 秒
+    let sec = this.fillZeroPrefix(second % 60)
+    return { day: this.fillZeroPrefix(day), hour: this.fillZeroPrefix(hour), minute, second: sec }
+  }
+
+  fillZeroPrefix(num) {
+    // 位数补0
+    return num < 10 ? '0' + num : num.toString()
+  }
+
+  onHide() {
+    clearTimeout(this.timer)
+  }
+
+  onUnload() {
+    clearTimeout(this.timer)
+  }
+}
+</script>

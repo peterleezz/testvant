@@ -1,0 +1,288 @@
+<style lang="less">
+@theme-color: #79a9ac;
+@font-color: #474747;
+
+page {
+  background-color: #eee;
+
+  .page {
+    padding-bottom: 1rpx;
+  }
+
+  .icon-setting,
+  .icon-message {
+    position: absolute;
+    color: #fff;
+    font-size: 44rpx;
+    top: 38rpx;
+    z-index: 5;
+  }
+
+  .icon-setting {
+    left: 55rpx;
+  }
+
+  .icon-message {
+    right: 55rpx;
+  }
+
+  .user_view {
+    height: 600rpx;
+    width: 100vw;
+    flex-direction: column;
+    justify-content: flex-end;
+    background-color: #fff;
+    font-size: 30rpx;
+    line-height: 30rpx;
+    position: relative;
+
+    .me_bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 2;
+      height: 510rpx;
+      width: 100vw;
+    }
+
+    .avatar_view {
+      flex-direction: column;
+      color: #fff;
+      position: relative;
+      bottom: 180rpx;
+      z-index: 3;
+
+      .avatar {
+        width: 124rpx;
+        height: 124rpx;
+        border: 8rpx solid #fff;
+        position: relative;
+
+        image {
+          height: 100%;
+          width: 100%;
+        }
+      }
+
+      .icon-vip {
+        color: @theme-color;
+        position: absolute;
+        font-size: 24rpx;
+        right: 0;
+        bottom: 0;
+      }
+
+      .user_name {
+        padding-top: 20rpx;
+      }
+    }
+
+    .other_info {
+      background-color: #fff;
+      padding-bottom: 20rpx;
+      width: 100%;
+      justify-content: space-around;
+      color: @font-color;
+
+      .other_info_item {
+        flex-direction: column;
+        width: 33.33vw;
+        font-size: 30rpx;
+        line-height: 30rpx;
+
+        .title {
+          font-size: 24rpx;
+          line-height: 24rpx;
+          padding-bottom: 15rpx;
+          color: #666;
+        }
+      }
+    }
+  }
+
+  .op_list {
+    min-height: 620rpx;
+    padding: 10rpx 20rpx;
+    border-radius: 10rpx;
+    margin: 20rpx 30rpx;
+    box-shadow: 0 9rpx 18rpx rgba(55, 56, 57, 0.25);
+
+    .op_item {
+      height: 75rpx;
+      line-height: 75rpx;
+      justify-content: space-between;
+      border-bottom: 1rpx solid #d3d3d4;
+      font-size: 30rpx;
+      color: @font-color;
+
+      .iconfont {
+        font-size: 36rpx;
+        padding-right: 30rpx;
+        color: @font-color;
+      }
+
+      .icon-arrow {
+        font-size: 28rpx;
+        padding-right: 0;
+        color: @font-color;
+      }
+
+      .invite_text {
+        font-size: 20rpx;
+        color: @theme-color;
+      }
+    }
+
+    .out-btn {
+      width: 300rpx;
+      height: 60rpx;
+      line-height: 60rpx;
+      font-size: 25rpx;
+      margin: 60rpx auto 0 auto;
+    }
+  }
+}
+
+</style>
+<template>
+  <view class="page">
+    <view @tap="setting" class="iconfont icon-setting"></view>
+    <view class="user_view flex">
+      <image class="me_bg" src="http://cdn.50yoga.cn/pics/public/yogarent/member/me_bg.png"></image>
+      <navigator url="./info?id={{info.id}}" class="avatar_view flex">
+        <view class="avatar circle">
+          <image class="circle" src="{{profile.avatar}}"></image>
+          <view class="iconfont icon-vip"></view>
+        </view>
+        <view class="user_name">{{profile.nickname}}</view>
+        <view class="user_name">{{profile.phone}}</view>
+      </navigator>
+      <view class="other_info flex">
+        <view class="other_info_item flex">
+          <view class="title">总共上课</view>
+          <view>{{profile.schedule_count}}</view>
+        </view>
+        <!-- <view class="other_info_item flex">
+                    <view class="title">关注星友</view>
+                    <view>{{profile.follow_count}}</view>
+                </view> -->
+        <view class="other_info_item flex">
+          <view class="title">学分</view>
+          <view>{{profile.yaaDetail.data.score}}</view>
+        </view>
+      </view>
+    </view>
+    <view class="op_list content">
+      <navigator url="appointhistory" class="op_item flex">
+        <view>
+          <text class="iconfont icon-me_course"></text>
+          <text>公共课记录</text>
+        </view>
+        <view class="iconfont icon-arrow"></view>
+      </navigator>
+      <navigator url="ptappointhistory" class="op_item flex">
+        <view>
+          <text class="iconfont icon-me_pt"></text>
+          <text>私教预约记录</text>
+        </view>
+        <view class="iconfont icon-arrow"></view>
+      </navigator>
+      <!-- <navigator url="" class="op_item flex">
+            <view>
+              <text class="iconfont icon-me_coupons"></text>
+              <text>我的活动</text>
+            </view>
+            <view class="iconfont icon-arrow"></view>
+          </navigator> -->
+      <!-- <navigator url="../me/invite" class="op_item flex">
+                <view>
+                    <text class="iconfont icon-me_invite"></text>
+                    <text>邀请有礼</text>
+                </view>
+                <view class="flex">
+                    <view class="invite_text">赠送课程券</view>
+                    <view class="iconfont icon-arrow"></view>
+                </view>
+            </navigator> -->
+      <button class="out-btn" @tap="logout">退出登录</button>
+    </view>
+  </view>
+  <auth active="true"></auth>
+</template>
+<script>
+import wepy from 'wepy'
+import grid from '@/components/grid/index'
+import griditem from '@/components/grid-item/index'
+import cell from '@/components/cell/index'
+import auth from '@/components/auth/index'
+import Cache from '@/utils/Cache'
+import util from '@/api/util'
+import Tips from '@/utils/Tips'
+export default class MeIndex extends wepy.page {
+  config = {
+    navigationBarTitleText: '个人中心',
+    enablePullDownRefresh: true
+  }
+
+  components = {
+    auth,
+    grid,
+    griditem,
+    cell,
+    cell1: cell,
+    cell2: cell
+  }
+
+  data = {
+    newtips: [],
+    profile: {},
+
+  }
+  async getTips() {
+    let userInfo = await wepy.getUserInfo()
+    this.nickName = userInfo.userInfo.nickName
+    let rsps = await util.newtips({ nickname: this.nickName })
+    this.newtips = rsps.data
+    this.$apply()
+  }
+  methods = {
+    cleancache: e => {
+      Cache.clearall()
+      Tips.success('清理完成')
+    },
+    toShare: e => {
+      let params = { path: 'cert', id: this.profile.id }
+      this.$preload('params', params)
+      this.$navigate('/pages/common/share')
+    },
+    cellTap: item => {
+      switch (item.type) {
+        case 'setting':
+          wepy.openSetting()
+          break
+        case 'about':
+          this.$navigate('./about')
+          break
+      }
+    },
+    logout: e => {
+      Tips.confirm('确定退出登录?', {}, '退出登录').then(success => {
+        this.profile = {}
+        this.$apply()
+        wepy.clearStorageSync()
+        Cache.clearall()
+        this.$broadcast('logout')
+      })
+    }
+  }
+
+  events = {
+    authed: async () => {
+      this.profile = await Cache.profile()
+      console.log(this.profile)
+      this.getTips()
+    }
+  }
+}
+
+</script>

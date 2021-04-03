@@ -1,0 +1,156 @@
+<style lang="less">
+@import '../../less/color.less';
+@import '../../less/mixins.less';
+
+.card {
+  position: relative;
+  width: 620rpx;
+  margin: 30rpx auto 0 auto;
+
+  .avatar {
+    margin: 0;
+  }
+}
+
+.appoint {
+  .flex-container(column, space-around, flex-start);
+  height: 160rpx;
+  padding-left: 20rpx;
+  font-size: 28rpx;
+
+  .course-name {
+    font-weight: bold;
+  }
+}
+
+.status {
+  position: absolute;
+  top: 30rpx;
+  right: 20rpx;
+  color: @theme;
+}
+
+</style>
+<template>
+  <view class="sci-content content">
+    <repeat wx:for="{{page.list}}" wx:key="{{index}}">
+      <view @tap="showActionSheet({{item}},{{index}})" class="card padding-15 font-14 flex flex-start">
+        <view class="appoint">
+          <view class="course-name">{{ item.contract.data.ptclassdetail.data.name }}</view>
+          <view>{{ item.appoint_date }}</view>
+          <view>老师：{{ item.yogateacher.data.name_en }}</view>
+        </view>
+        <view class="status">{{ item.show_tag }}</view>
+      </view>
+    </repeat>
+    <loadmore :page.sync="page"></loadmore>
+    <placeholder :show.sync="isPageEmpty" message="暂无私教预约记录"></placeholder>
+  </view>
+  <actionsheet :asData.sync="asData"></actionsheet>
+</template>
+<script>
+import wepy from 'wepy'
+import actionsheet from '@/components/actionsheet/index'
+import avatar from '@/components/avatar/index'
+import loadmore from '@/components/loadmore/index'
+import placeholder from '@/components/common/placeholder'
+import ptappoint from '@/api/ptappoint'
+import Tips from '@/utils/Tips'
+import pagination from '@/mixins/pagination'
+
+export default class PtAppointHistory extends wepy.page {
+  config = {
+    navigationBarTitleText: '私教记录'
+  }
+
+  components = {
+    actionsheet,
+    avatar,
+    loadmore,
+    placeholder
+  }
+
+  mixins = [pagination]
+
+  data = {
+    asData: {
+      itemList: [{
+          value: '确认履约',
+          event: 'confirmAppoint'
+        },
+       // {
+// value: '修改预约',
+// event: 'editAppoint'
+// },
+// {
+// value: '取消预约',
+// event: 'cancelAppoint',
+// class: 'danger'
+// }
+
+      ],
+      index: 0,
+      show: false
+    },
+    currentIndex: -1,
+    currentItem: {}
+  }
+
+  methods = {
+    showActionSheet: async (item, index) => {
+      this.currentItem = item
+      this.currentIndex = index
+      this.asData.show = true
+    }
+  }
+
+  events = {
+    confirmAppoint: async acIndex => {
+      try {
+        await ptappoint.confirm(this.currentItem.id)
+        this.page.list[this.currentIndex].is_come = 2
+        this.page.list[this.currentIndex].show_tag = '已完成'
+        this.asData.show = false
+        this.$apply()
+      } catch (err) {
+        Tips.error(err)
+      }
+    },
+    editAppoint: acIndex => {
+      try {
+        if (this.currentItem.is_come > 0) {
+          throw new Error('本次预约已完成，不可再修改!')
+        }
+        this.$navigate(`./ptappoint?id=${this.currentItem.id}`)
+        this.asData.show = false
+      } catch (err) {
+        Tips.error(err)
+      }
+    },
+    cancelAppoint: async acIndex => {
+      try {
+        if (this.currentItem.is_come > 0) {
+          throw new Error('本次预约已完成，不可取消!')
+        }
+        await ptappoint.remove(this.currentItem.id)
+        this.page.list.splice(this.currentIndex, 1)
+        this.asData.show = false
+        this.$apply()
+      } catch (err) {
+        Tips.error(err)
+      }
+    }
+  }
+
+  async getPtAppoints() {
+    this.page = await ptappoint.page({ include: 'yogateacher,contract.ptclassdetail' })
+    await this.next()
+    this.$apply()
+  }
+
+  onLoad() {
+    this.getPtAppoints()
+  }
+}
+
+</script>

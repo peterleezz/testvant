@@ -1,0 +1,87 @@
+<style lang="less">
+.share-pop {
+  .popup-container {
+    border-radius: 10rpx;
+    top: 45%;
+  }
+}
+.pop {
+  width: 630rpx;
+  .btn {
+    padding: 0;
+    margin: 0;
+  }
+  .btn:after {
+    border: none;
+  }
+  .item {
+    color: #989898;
+    font-size: 20rpx;
+    line-height: 50rpx;
+    height: 150rpx;
+    .icon {
+      width: 68rpx;
+      height: 68rpx;
+      margin: 0;
+    }
+  }
+  .icon-closebg {
+    position: absolute;
+    top: 200rpx;
+    font-size: 52rpx;
+    color: #acacac;
+  }
+}
+</style>
+<template>
+  <popup :show.sync="showPopup" position="center" id="1" class="share-pop">
+    <view slot="popContainer" class="pop flex flex-around">
+      <button @tap="share" class="flex flex-column btn item" openType="share">
+        <image class="icon" src="http://piccdn.50yoga.cn/pics/source/YAA/weixin2.png" />
+        <view>微信好友</view>
+      </button>
+      <view @tap="draw" class="flex flex-column item">
+        <image class="icon" src="http://piccdn.50yoga.cn/pics/source/YAA/friend2.png" />
+        <view>朋友圈</view>
+      </view>
+      <icon handleTap="iconTap" type="closebg"></icon>
+    </view>
+  </popup>
+</template>
+<script>
+import wepy from 'wepy'
+import Popup from '@/components/popup/index'
+import Icon from '@/components/icon/index'
+export default class Share extends wepy.component {
+  data = {
+    showPopup: false
+  }
+
+  components = {
+    popup: Popup,
+    icon: Icon
+  }
+
+  methods = {
+    share: e => {
+      this.showPopup = false
+    },
+    draw: e => {
+      this.showPopup = false
+      this.$emit('drawSharePic')
+    },
+    show: e => {
+      this.showPopup = true
+    },
+    hide: e => {
+      this.showPopup = false
+    }
+  }
+
+  events = {
+    iconTap: e => {
+      this.showPopup = false
+    }
+  }
+}
+</script>

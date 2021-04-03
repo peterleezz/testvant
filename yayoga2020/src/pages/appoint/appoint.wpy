@@ -1,0 +1,436 @@
+<style>
+.course_info {
+  font-size: 24rpx;
+  line-height: 24rpx;
+  padding: 28rpx 30rpx 30rpx 30rpx;
+  justify-content: space-between;
+}
+
+.contracts_view {
+  align-self: flex-start;
+
+}
+
+.icon-triangle_down {
+  font-size: 36rpx;
+  padding-left: 10rpx;
+}
+
+.course_name {
+  font-size: 30rpx;
+  padding-right: 25rpx;
+}
+
+.course_time {
+  padding-top: 20rpx;
+}
+
+.seats_view {
+  box-shadow: 0 5rpx 30rpx 5rpx rgba(55, 56, 57, 0.25);
+}
+
+.pt_seat {
+  height: 36rpx;
+  font-size: 24rpx;
+  color: #fff;
+  line-height: 36rpx;
+  width: 206rpx;
+  background-color: #b2b2b2;
+  border-bottom-left-radius: 10rpx;
+  border-bottom-right-radius: 10rpx;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+.seats {
+  padding: 62rpx 26rpx 30rpx 26rpx;
+  position: relative;
+}
+
+.row_name {
+  font-size: 28rpx;
+  line-height: 28rpx;
+  color: #333;
+}
+
+.seat_row {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.seat_item {
+  position: relative;
+}
+
+.num {
+  font-size: 18rpx;
+  position: absolute;
+  bottom: 20rpx;
+  right: 40rpx;
+  color: #b2b2b2;
+}
+
+.seat {
+  font-size: 74rpx;
+  height: 52rpx;
+  line-height: 52rpx;
+  width: 74rpx;
+  padding: 20rpx;
+}
+
+.middle_line {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  height: 100%;
+  width: 2rpx;
+  background-color: #f2f2f2;
+  z-index: -1;
+}
+
+.examples {
+  font-size: 20rpx;
+  line-height: 40rpx;
+  padding-bottom: 10rpx;
+  padding-top: 30rpx;
+  justify-content: center;
+}
+
+.example {
+  width: 110rpx;
+  flex-direction: column;
+}
+
+.example .icon-yoga_seat {
+  font-size: 44rpx;
+  width: 44rpx;
+  height: 30rpx;
+  line-height: 30rpx;
+}
+
+.able {
+  color: #b2b2b2;
+}
+
+.default {
+  color: #b2b2b2;
+}
+
+.chosen {
+  color: #f6648a;
+}
+
+.mine {
+  color: #79a9ac;
+}
+
+.op_view {
+  padding-top: 30rpx;
+  padding-bottom: 30rpx;
+}
+
+.op_view .button {
+  padding-top: 30rpx;
+  padding-left: 50rpx;
+  padding-right: 50rpx;
+}
+
+.button button {
+  font-size: 30rpx;
+  height: 72rpx;
+  line-height: 72rpx;
+  border-radius: 36rpx;
+}
+
+button[disabled]:not([type]) {
+  color: #fff;
+  background-color: #bfbfbf;
+}
+
+.button .ok_btn {
+  background-color: #79a9ac;
+}
+
+.chosen_view {
+  font-size: 30rpx;
+  line-height: 30rpx;
+  padding-left: 50rpx;
+}
+
+.my_seats {
+  margin-left: -20rpx;
+  flex-wrap: wrap;
+}
+
+.my_seats .seat {
+  padding-bottom: 0;
+}
+
+.my_seats .num {
+  bottom: -2rpx;
+}
+
+</style>
+<template>
+  <view class="course_info flex">
+    <view>
+      <view>
+        <text class="course_name">{{item.course.data.name}}</text>
+        <text>{{item.room.data.name}}</text>
+      </view>
+      <view class="course_time">时间：{{item.start}}</view>
+    </view>
+    <view class="contracts_view">
+      <picker @change.stop="contractChange" value="{{contractIndex}}" range-key="name" range="{{contracts}}">
+        <view class="picker_content flex">
+          <view>{{contract_id==0?'请选择合同': contracts[contractIndex].name }}</view>
+          <view class="iconfont icon-triangle_down"></view>
+        </view>
+      </picker>
+    </view>
+  </view>
+  <view class="seats_view">
+    <view class="pt_seat">老师位置</view>
+    <view class="seats">
+      <block wx:for="{{seats}}" wx:key="{{index}}">
+        <view class="row_name">{{index+1}} 排</view>
+        <view class="seat_row flex">
+          <block wx:for="{{item}}" wx:for-index="idx" wx:for-item="itm" wx:key="{{idx}}">
+            <view @tap="chooseSeat({{itm}})" class="seat_item">
+              <view class="seat iconfont icon-yoga_seat {{itm.status}}"></view>
+              <view class="num {{itm.color}}">{{itm.pos}}</view>
+            </view>
+          </block>
+        </view>
+      </block>
+      <view class="middle_line"></view>
+    </view>
+    <view class="examples flex">
+      <view class="example flex">
+        <view class="iconfont icon-yoga_seat able"></view>
+        <view>可选</view>
+      </view>
+      <view class="example flex">
+        <view class="iconfont icon-yoga_seat chosen"></view>
+        <view>已选</view>
+      </view>
+      <view class="example flex">
+        <view class="iconfont icon-yoga_seat mine"></view>
+        <view>我的</view>
+      </view>
+    </view>
+  </view>
+  <view class="op_view">
+    <view class="chosen_view">
+      <view>我的选座:{{ myPos }}</view>
+    </view>
+    <view class="button">
+      <form @submit="submit" report-submit>
+        <button wx:if="{{myPos==0}}" disabled>请选座位</button>
+        <button wx:else formType="submit" class="ok_btn">确认选座</button>
+      </form>
+    </view>
+  </view>
+  <auth active="true"></auth>
+</template>
+<script>
+import wepy from 'wepy'
+import auth from '@/components/auth/index'
+import cell from '@/components/cell/index'
+import popup from '@/components/popup/index'
+import panel from '@/components/panel/index'
+import Loadmore from '@/components/loadmore/index'
+import Placeholder from '@/components/common/placeholder'
+import base from '@/mixins/base'
+import form from '@/mixins/input'
+import icon from '@/components/icon/index'
+import avatar from '@/components/avatar/index'
+import Share from '@/components/common/share'
+import appoint from '@/api/appoint'
+import config from '@/api/config'
+import order from '@/api/order'
+import Cache from '@/utils/Cache'
+import Tips from '@/utils/Tips'
+import Event from '@/utils/Event'
+import Decode from '@/utils/Decode'
+export default class Seat extends wepy.page {
+  config = {
+    navigationBarTitleText: '选位'
+  }
+  components = {
+    panel1: panel,
+    panel2: panel,
+    auth: auth,
+    cell: cell,
+    popup: popup,
+    Loadmore: Loadmore,
+    Placeholder: Placeholder,
+    icon1: icon,
+    icon2: icon,
+    avatar1: avatar,
+    avatar2: avatar,
+    avatar3: avatar,
+    avatar4: avatar,
+    avatar,
+
+    share: Share
+  }
+  mixins = [base, form]
+  data = {
+    item: null,
+    default: '',
+    chosen: '',
+    mine: '',
+    teacher: '',
+    contractIndex: 0,
+    myPos: 0,
+    contracts: [],
+    show: false,
+    id: 0,
+    success: null,
+    appointId: 0,
+    recommendId: 0
+  }
+  methods = {
+    chooseSeat: e => {
+      if (this.contracts.length == 0 && this.item.sub_type !== 4) {
+        Tips.error('系统未检测到有效会籍～')
+        return
+      }
+      if (e.status == 'default') {
+        this.myPos = e.pos
+        this.item.appoint.data = this.item.appoint.data.filter(ee => ee.member_id != wepy.$instance.globalData.profile.member_id)
+        let appoint = { member_id: wepy.$instance.globalData.profile.member_id, pos: e.pos }
+        this.item.appoint.data.push(appoint)
+      }
+    },
+    successTap: e => {
+      if (this.success.link_page != '') {
+        this.$navigate('this.success.link_page')
+      } else if (this.success.link_url != '') {
+        this.$parent.$preload('url', this.success.link_url)
+        this.$parent.$navigate('/pages/common/webview')
+      }
+    },
+    contractChange: e => {
+      this.contractIndex = e.detail.value
+      config.setConfig('contract_id', this.contracts[e.detail.value].id)
+    },
+    submit: async e => {
+      console.log(e)
+      if (!this.myPos) {
+        Tips.error('请先选择位置')
+        return
+      }
+      try {
+        if (this.item.sub_type === 4) {
+          let res = await order.store({ type: 100133, schedule_id: this.id, pos: this.myPos, rcmd_id: this.recommendId })
+          await wepy.requestPayment(res)
+        } else {
+          if (this.appointId) {
+            await appoint.update(this.appointId, { pos: this.myPos })
+          } else {
+            let ret = await appoint.store({ schedule_id: this.id, pos: this.myPos, contract_id: this.contracts[this.contractIndex].id })
+            this.appointId = ret
+          }
+        }
+        Event.emit(Event.APPOINT_CHANGE)
+        this.show = true
+        this.$apply()
+        Tips.success('预约成功！')
+      } catch (e) {
+        Tips.error(e)
+      }
+    },
+    toShare: e => {
+      let params = { path: 'cert', id: wepy.$instance.globalData.profile.id }
+      this.$preload('params', params)
+      this.$navigate('/pages/common/share')
+    }
+  }
+
+  computed = {
+    seats: () => {
+      let arr = []
+      let index = 1
+      if (this.item) {
+        this.item.room.data.extension.forEach((e, idx) => {
+          for (let i = 0; i < e; i++) {
+            arr.push({
+              row: idx + 1,
+              pos: index++,
+              status: 'default',
+              pic: this.default
+            })
+          }
+        })
+
+        this.item.appoint.data.forEach(e => {
+          arr[e.pos - 1].status = e.member_id == wepy.$instance.globalData.profile.member_id || e.xcxuser.data.id == wepy.$instance.globalData.profile.id ? 'mine' : 'chosen'
+          // arr[e.pos - 1].pic = e.member_id == wepy.$instance.globalData.profile.member_id ? this.mine : this.chosen
+          arr[e.pos - 1].pic = e.member_id == wepy.$instance.globalData.profile.member_id || e.xcxuser.data.id == wepy.$instance.globalData.profile.id ? this.mine : e.xcxuser.data.thumbnail
+        })
+      }
+      let cc = arr.reduce((res, item) => {
+        res[item.row] ? res[item.row].push(item) : (res[item.row] = [item])
+        return res
+      }, {})
+
+      let c = []
+      if (this.item) {
+        this.item.room.data.extension.forEach((e, idx) => {
+          c.push(cc[idx + 1])
+        })
+      }
+      // let c = Object.values(
+      //   arr.reduce((res, item) => {
+      //     res[item.row] ? res[item.row].push(item) : (res[item.row] = [item])
+      //     return res
+      //   }, {})
+      // )
+
+      return c
+    }
+  }
+
+  async notify() {
+    Cache.remove('CONTRACTS')
+    rsp = await Cache.contracts()
+    this.contracts = rsp.data
+    this.$apply()
+  }
+
+  async onLoad(options) {
+    let { id, recommendId } = Decode.options(options)
+    this.recommendId = recommendId
+    let pics = await Cache.seatPics()
+    this.success = await Cache.appointSuccess()
+    this.id = id
+    let rsp = await Cache.schedule(id, 0)
+    this.item = rsp.data
+    console.log("------------")
+    console.log(wepy.$instance.globalData.profile)
+
+    this.item.appoint.data.forEach(e => {
+      if (e.member_id == wepy.$instance.globalData.profile.member_id || e.xcxuser.data.id == wepy.$instance.globalData.profile.id) {
+        this.myPos = e.pos
+        this.appointId = e.id
+      }
+    })
+
+    rsp = await Cache.contracts()
+    this.contracts = rsp.data
+
+    let contractId = config.getConfig('contract_id')
+    this.contractIndex = this.contracts.findIndex(e => e.id == contractId)
+    this.contractIndex = this.contractIndex >= 0 ? this.contractIndex : 0
+    console.log(this.contractIndex)
+    this.initProperty(pics)
+    Event.listen(Event.BUY_ACTIVITY, this.notify.bind(this), this)
+
+    this.$apply()
+  }
+}
+
+</script>

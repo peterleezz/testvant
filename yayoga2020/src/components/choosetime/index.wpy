@@ -1,0 +1,128 @@
+<style type="less">
+    .day-main {
+        margin-top: 10rpx;
+        height: 88rpx;
+        width: 100%;
+        .day-left {
+            width: 638rpx;
+        }
+        .day-right {
+            width: 112rpx;
+            &::before {
+                content: " ";
+                width: 2rpx;
+                height: 88rpx;
+                margin: 0 20rpx;
+                display: inline-block;
+                background: #9c9c9c;
+            }
+        }
+        .all-course {
+            width: 48rpx;
+        }
+    }
+</style>
+<template>
+    <view class="day-main flex bg-color">
+        <view class="day-left flex flex-around">
+            <view class="font-12 all-course {{showAllCourse?'theme-text-color':''}}" @tap="chooseAllCourse">全部课程
+            </view>
+            <block wx:for="{{weekDates}}" wx:key="{{index}}">
+                <view class="day-body flex flex-column" @tap="chooseDate('{{index}}','{{item.date}}')">
+                    <view class="font-12 {{dateIndex==index&&dayColorModel?'theme-text-color':''}}">{{item.d}}</view>
+                    <view class="font-12 {{dateIndex==index&&dayColorModel?'theme-text-color':''}}">{{index==0?'今天':item.w}}</view>
+                </view>
+            </block>
+        </view>
+        <view class="flex day-right" >
+            <icon type="calendar" handleTap="calendarBtn"></icon>
+        </view>
+    </view>
+    <popup :show.sync="showCalendar" position="center" :id.sync="1" :maskHide.sync="maskHide">
+        <block slot="popContainer">
+            <calendar :chosenDate.sync="chosenDate" :todayDate="todayDate"></calendar>
+        </block>
+    </popup>
+</template>
+
+<script>
+import wepy from 'wepy'
+import dateformat from '@/utils/Date'
+import Icon from '@/components/icon/index'
+import Calendar from '@/components/calendar/index'
+import Popup from '@/components/popup/index'
+
+export default class chooseTime extends wepy.component {
+  components = {
+    icon: Icon,
+    calendar: Calendar,
+    popup: Popup
+  }
+  data = {
+    weekDates: [],
+    dateIndex: 0,
+    dayColorModel: true,
+    showAllCourse: false,
+    showCalendar: false,
+    maskHide: false,
+    chosenDate: '',
+    todayDate: '',
+    chooseAllCourseEnd: ''
+  }
+  events = {
+    calendarBtn: e => {
+      this.showAllCourse = false
+      this.showCalendar = true
+    },
+    chooseCalendar: (calendarNumber, chosenDate) => {
+      this.dateIndex = dateformat.getDateStrInterval(chosenDate, this.todayDate)
+      console.log(this.dateIndex)
+      this.chosenDate = chosenDate
+      this.$emit('chosenDate', this.chosenDate)
+      this.showCalendar = false
+    },
+    showCalendar: showCalendar => {
+      this.showCalendar = showCalendar
+    }
+  }
+  methods = {
+    chooseDate: (index, date, e) => {
+      this.dateIndex = index
+      this.dayColorModel = true
+      this.showAllCourse = false
+      this.days = date
+      this.chosenDate = date
+      this.lastdate = date
+      if (this.lastdateIndex !== this.dateIndex) {
+        this.$emit('chosenDate', this.chosenDate)
+      }
+      this.lastdateIndex = index
+    },
+    chooseAllCourse: e => {
+      this.lastdate = -1
+      this.lastdateIndex = -1
+      this.showAllCourse = true
+      this.dayColorModel = false
+      this.$emit('chooseAllCourse', this.chooseAllCourseEnd)
+    }
+  }
+  onLoad () {
+    let today = new Date()
+    this.days = dateformat.format(new Date(), 'yyyy-MM-dd')
+    this.todayDate = this.days
+    this.chosenDate = this.days
+    let weekDates = []
+    for (let i = 0; i < 3; i++) {
+      let datestr = dateformat.getDateAfterDays(today, i)
+      weekDates.push({
+        date: datestr,
+        d: datestr.substr(5, 5),
+        w: dateformat.getWeek(new Date(datestr))
+      })
+    }
+    this.chooseAllCourseEnd = dateformat.getDateAfterDays(today, 2)
+    this.weekDates = weekDates
+    this.$apply()
+  }
+}
+</script>

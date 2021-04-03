@@ -1,0 +1,141 @@
+@import '../../less/mixins.less';
+@import '../../less/color.less';
+
+ 
+
+ 
+.auth-login-btn {
+  position: fixed;
+  z-index: 99999;
+  background-color: @theme;
+  color: #fff;
+  font-size: 28rpx;
+  height: 50rpx;
+  line-height: 50rpx;
+}
+
+.auth-right-btn {
+  padding: 0 10rpx 0 20rpx;
+  border-top-left-radius: 50rpx;
+  border-bottom-left-radius: 50rpx;
+  right: 0;
+}
+
+.auth-left-btn {
+  padding: 0 20rpx 0 10rpx;
+  border-top-right-radius: 50rpx;
+  border-bottom-right-radius: 50rpx;
+  left: 0;
+}
+
+.auth-pop .popup-container {
+  border-radius: 10rpx;
+  width: 580rpx;
+  font-size: 28rpx;
+  padding-top: 40rpx;
+
+  .btns {
+    width: 100%;
+    margin-top: 40rpx;
+    border-top: 1px solid @bg;
+    .btn {
+      color: @disabled;
+      margin: 0;
+      padding: 0;
+      width: 50%;
+      border-radius: 0;
+      border-bottom-left-radius: 10rpx;
+    }
+
+    .btn::after {
+      border: none;
+    }
+
+    .active-btn {
+      color: @theme;
+      border-left: 1px solid @bg;
+      border-radius: 0;
+      border-bottom-right-radius: 10rpx;
+    }
+  }
+
+  .btn {
+    padding: 0;
+    margin: 40rpx auto 0 auto;
+    height: 90rpx;
+    line-height: 90rpx;
+    font-size: 36rpx;
+    width: 496rpx;
+    border-radius: 90rpx;
+  }
+
+  .btn-code {
+    position: absolute;
+    right: 28rpx;
+    height: 45rpx;
+    line-height: 45rpx;
+    width: 164rpx;
+    margin: 0;
+    font-size: 24rpx;
+    border-radius: 10rpx;
+  }
+
+  .avatar {
+    margin: 16rpx 0 56rpx 0;
+  }
+
+  .avatar-img {
+    height: 120rpx;
+    width: 120rpx;
+  }
+
+  .tip {
+    padding: 0 30rpx;
+    text-align: center;
+  }
+}
+
+.operate-container {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.phone {
+  text-align: center;
+}
+
+.switch-txt {
+  padding: 20rpx 0 40rpx 0;
+  color: @theme;
+  text-decoration: underline;
+}
+
+.input-item {
+  position: relative;
+  height: 76rpx;
+  width: 496rpx;
+  border: 1rpx solid @border;
+  border-radius: 76rpx;
+  .flex-container(row, flex-start);
+
+  .iconfont {
+    font-size: 40rpx;
+    padding: 0 32rpx;
+  }
+
+  &:nth-child(2) {
+    margin-top: 45rpx;
+  }
+}
+
+.field-cell {
+  padding: 0;
+
+  &::after {
+    border: none;
+  }
+
+  .field-input {
+    width: 200rpx;
+  }
+}

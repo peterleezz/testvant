@@ -1,0 +1,263 @@
+//自定义样式都定义在这里,对于基本组件样式(index.less)的修改也定义在这里
+@import './color.less';
+@import './mixins.less';
+
+.list-title {
+  background: #fff;
+  margin-top: 10rpx;
+  padding: 10rpx;
+  font-size: 32rpx;
+
+  &::before {
+    content: ' ';
+    width: 8rpx;
+    height: 34rpx;
+    margin: 0 10rpx;
+    vertical-align: middle;
+    display: inline-block;
+    background: @theme;
+  }
+}
+
+.border-radius-10 {
+  border-radius: 10rpx;
+}
+
+.base-white-color {
+  color: #fff;
+}
+
+.theme-text-color {
+  color: @theme;
+}
+
+.text-blue-color {
+  color: @base-blue-color;
+}
+
+.background-color-000 {
+  opacity: 0.5;
+  background-color: #000;
+}
+
+.theme-bg {
+  background-color: @theme;
+}
+
+.font-11 {
+  font-size: 11px;
+}
+
+.font-13 {
+  font-size: 13px;
+}
+
+.font-15 {
+  font-size: 15px;
+}
+
+.font-18 {
+  font-size: 18px;
+}
+
+.font-20 {
+  font-size: 20px;
+}
+
+.border-left-radius {
+  border-top-left-radius: 20rpx;
+  border-bottom-left-radius: 20rpx;
+}
+
+.padding-10-0 {
+  padding: 10rpx 0;
+}
+
+.padding-0-30 {
+  padding: 0 30rpx;
+}
+
+.padding-left-10 {
+  padding-left: 10rpx;
+}
+
+.padding-leftAndRight-10 {
+  padding-left: 10rpx;
+  padding-right: 10rpx;
+}
+
+.padding-leftAndRight-20 {
+  padding-left: 20rpx;
+  padding-right: 20rpx;
+}
+
+.margin-10 {
+  margin: 10px;
+}
+
+.margin-left-10 {
+  margin: 10rpx;
+}
+
+.margin-top-20 {
+  margin-top: 20rpx;
+}
+
+.margin-top-10 {
+  margin-top: 10rpx;
+}
+
+.margin-bottom-20 {
+  margin-bottom: 20rpx;
+}
+
+.margin-leftAndRight-20 {
+  margin: 0 20rpx;
+}
+
+.width-750 {
+  width: 750rpx;
+}
+
+.width-100vw {
+  width: 100vw;
+}
+
+.width-100 {
+  width: 100%;
+}
+
+.height-100vh {
+  height: 100vh;
+}
+
+.height-100 {
+  height: 100%;
+}
+
+.line-height-46 {
+  line-height: 46rpx;
+}
+
+.border-bottom {
+  border-bottom: 1rpx solid #a8abad;
+}
+
+.btn-circle {
+  width: 90%;
+  border-radius: 40rpx;
+}
+
+.btn-ordinary {
+  color: #fff;
+  background-color: @theme;
+}
+
+.bg-color {
+  background-color: #fff;
+}
+
+.bottom-menu {
+  .flex-container();
+  position: fixed;
+  z-index: 1;
+  bottom: 0;
+  width: 100vw;
+  height: 90rpx;
+  background-color: #fff;
+
+  .sub-ops {
+    height: 100%;
+    width: 30vw;
+    .flex-container();
+  }
+
+  .op-item {
+    .flex-container(column);
+    position: relative;
+    height: 100%;
+    width: 15vw;
+    font-size: 20rpx;
+
+    &:first-child {
+      &:after {
+        position: absolute;
+        top: 30rpx;
+        left: 15vw;
+        content: '';
+        width: 1px;
+        height: 30rpx;
+        background-color: @bg;
+      }
+    }
+
+    .iconfont {
+      width: 40rpx;
+      height: 30rpx;
+    }
+  }
+
+  .btn {
+    width: 70vw;
+    padding: 0;
+    margin: 0;
+    font-size: 32rpx;
+  }
+}
+
+.appoint-pop {
+  .popup-container {
+    border-radius: 10rpx;
+  }
+
+  .img {
+    width: 590rpx;
+    height: 240rpx;
+  }
+
+  &-title {
+    padding-top: 40rpx;
+    font-size: 40rpx;
+    font-weight: bold;
+    text-align: center;
+  }
+
+  &-content {
+    font-size: 32rpx;
+    margin-top: 20rpx;
+    line-height: 1.5;
+    text-align: center;
+  }
+
+  .btns {
+    width: 100%;
+    margin-top: 40rpx;
+    border-top: 1rpx solid @bg;
+
+    .btn {
+      color: #a8abad;
+      margin: 0;
+      padding: 0;
+      width: 50%;
+      border-bottom-left-radius: 10rpx;
+    }
+
+    .active-btn {
+      color: @theme;
+      border-left: 1rpx solid @bg;
+      border-bottom-right-radius: 0;
+      border-bottom-right-radius: 10rpx;
+    }
+  }
+}
+
+.btn-customService {
+  background: url('http://cdn.50yoga.cn/pics/source/inyoga/kefu.png') no-repeat;
+  width: 100rpx;
+  height: 100rpx;
+  background-size: 100% 100%;
+  position: fixed;
+  bottom: 150rpx;
+  right: 0;
+  border-radius: 50%;
+}

@@ -1,0 +1,48 @@
+<style lang="less">
+.sign-img {
+  width: 200rpx;
+  height: 100rpx;
+  margin: 10px;
+  border-bottom: 1rpx solid #000;
+}
+
+</style>
+<template>
+  <view class="flex flex-end">
+    <text>签字:</text>
+    <view class="sign-img" @tap="sign">
+      <image mode="aspectFit" src="{{src}}"></image>
+    </view>
+  </view>
+</template>
+<script>
+import wepy from 'wepy'
+import Event from '@/utils/Event'
+export default class Sign extends wepy.component {
+  props = {
+    id: {
+      type: [Number, String],
+      default: ''
+    }
+  }
+
+  data = {
+    src: ''
+  }
+
+  methods = {
+    sign: e => {
+      this.$parent.$navigate(`/pages/common/sign?id=${this.id}`)
+    },
+  }
+  computed = {}
+  load(img) {
+    this.src = img
+    this.$apply()
+  }
+  onLoad() {
+    Event.listen(Event.SIGN_IMG, this.load.bind(this), this)
+  }
+}
+
+</script>

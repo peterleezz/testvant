@@ -1,0 +1,559 @@
+<style lang="less">
+.page {
+  height: 100vh;
+  width: 100vw;
+}
+
+.tabs {
+  width: 100%;
+}
+
+.tab {
+  width: 164rpx;
+}
+
+.list {
+  /*padding-top: 72rpx;*/
+  box-sizing: border-box;
+  padding-bottom: 1rpx;
+}
+
+.filter {
+  font-size: 28rpx;
+  color: #bfbfbf;
+  width: 100%;
+  justify-content: space-between;
+  padding: 20rpx 120rpx 30rpx 120rpx;
+  box-sizing: border-box;
+}
+
+.icon-gps {
+  color: #49484a;
+  font-size: 42rpx;
+}
+
+.icon-calendar {
+  color: #c1c1c1;
+  font-size: 42rpx;
+}
+
+.filter_active {
+  color: #373839;
+}
+
+.course_item {
+  margin-left: 30rpx;
+  margin-right: 30rpx;
+  box-sizing: border-box;
+  border-radius: 10rpx;
+  box-shadow: 0 9rpx 18rpx rgba(55, 56, 57, 0.25);
+  position: relative;
+  overflow: hidden;
+}
+
+.course_item .image {
+  width: 100%;
+  height: 308rpx;
+  position: relative;
+}
+
+.image image {
+  border-top-right-radius: 10rpx;
+  border-top-left-radius: 10rpx;
+  height: 100%;
+  width: 100%;
+}
+
+.course_tag {
+  position: absolute;
+  bottom: 20rpx;
+  right: 0;
+  height: 40rpx;
+  background-color: #79a9ac;
+  border-top-left-radius: 28rpx;
+  border-bottom-left-radius: 28rpx;
+  font-size: 28rpx;
+  line-height: 40rpx;
+  min-width: 200rpx;
+  padding: 0 10rpx;
+  text-align: center;
+  color: #fff;
+}
+
+.booking-status {
+  position: absolute;
+  top: 20rpx;
+  left: 0;
+  height: 40rpx;
+  background-color: #fff;
+  border-top-right-radius: 28rpx;
+  border-bottom-right-radius: 28rpx;
+  font-size: 28rpx;
+  line-height: 40rpx;
+  min-width: 80rpx;
+  padding: 0 10rpx;
+  text-align: center;
+  color: #79a9ac;
+}
+
+.booking-status1 {
+  background-color: rgb(252, 139, 47);
+  border-top-right-radius: 28rpx;
+  border-bottom-right-radius: 28rpx;
+  font-size: 28rpx;
+  min-width: 60rpx;
+  padding: 0 10rpx;
+  text-align: center;
+  color: #ffffff;
+}
+
+.course_club {
+  position: absolute;
+  bottom: 20rpx;
+  left: 20rpx;
+  font-size: 28rpx;
+  line-height: 28rpx;
+  background-color: rgba(0, 0, 0, .5);
+  color: #fff;
+}
+
+.course_info {
+  font-size: 20rpx;
+  line-height: 20rpx;
+  padding-left: 20rpx;
+  padding-bottom: 30rpx;
+  padding-top: 30rpx;
+  position: relative;
+}
+
+.appoint_count {
+  font-size: 28rpx;
+  line-height: 28rpx;
+}
+
+.icon-fire {
+  font-size: 36rpx;
+  color: #f0a794;
+  padding-right: 5rpx;
+}
+
+.course_name {
+  font-size: 32rpx;
+  line-height: 32rpx;
+  padding-bottom: 20rpx;
+  justify-content: space-between;
+  padding-right: 20rpx;
+}
+
+.course_time {
+  padding-bottom: 20rpx;
+  font-size: 26rpx;
+}
+
+.icon-time {
+  font-size: 28rpx;
+  padding-right: 10rpx;
+  color: #b8b8b8;
+}
+
+.club_addr {
+  text-decoration: underline;
+  font-size: 26rpx;
+}
+
+.icon-location {
+  font-size: 28rpx;
+  padding-right: 10rpx;
+  color: #b8b8b8;
+}
+
+.distance {
+  position: absolute;
+  bottom: 30rpx;
+  right: 15rpx;
+  color: #b2b2b2;
+  font-size: 26rpx;
+}
+
+.club_item {
+  padding: 30rpx;
+  width: 100%;
+  box-sizing: border-box;
+  box-shadow: 0 9rpx 18rpx rgba(55, 56, 57, 0.25);
+  position: relative;
+}
+
+.club_img {
+  position: relative;
+}
+
+.feature_item {
+  flex-direction: column;
+}
+
+.feature_item .iconfont {
+  padding-bottom: 4rpx;
+  color: #fff;
+}
+
+.feature_item .iconfont {
+  font-size: 30rpx;
+}
+
+.club_info {
+  padding-left: 20rpx;
+  align-self: flex-end;
+  padding-bottom: 30rpx;
+  width: 100%;
+}
+
+.club_name {
+  font-size: 28rpx;
+  line-height: 28rpx;
+  width: 100%;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.point {
+  color: #bfbfbf;
+  font-size: 24rpx;
+  flex-shrink: 0;
+}
+
+.club_tag {
+  font-size: 24rpx;
+  color: #bfbfbf;
+  height: 35rpx;
+  line-height: 35rpx;
+  padding: 0 20rpx;
+  border: 1rpx solid #bfbfbf;
+  border-radius: 10rpx;
+  margin-right: 10rpx;
+  margin-bottom: 10rpx;
+}
+
+.addr_info {
+  padding-top: 70rpx;
+}
+
+.club_info .icon-location {
+  font-size: 36rpx;
+  padding-right: 20rpx;
+}
+
+.club_info .club_addr {
+  font-size: 22rpx;
+  line-height: 22rpx;
+}
+
+.no_schedule {
+  text-align: center;
+  padding-top: 33vh;
+  color: #bfbfbf;
+}
+
+.member_list {
+  padding-top: 0;
+}
+
+// 点击隐藏
+.theme-page {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 100vw;
+  z-index: 999999;
+  background-color: #fff;
+
+  movable-view,
+  .theme-bg {
+    height: 100%;
+    width: 100%;
+  }
+
+  .theme-bg {
+    display: flex;
+    justify-content: center;
+
+    .theme-img {
+      height: 100%;
+      width: 100%;
+    }
+
+    .arrow-img {
+      position: absolute;
+      height: 74rpx;
+      width: 74rpx;
+      bottom: 22rpx;
+      animation: bounce 1.5s 0s linear infinite;
+    }
+
+    .certificate {
+      position: absolute;
+      bottom: 268rpx;
+      animation: rotateIn 1s .2s linear both;
+
+      @keyframes rotateIn {
+        0% {
+          transform-origin: center center;
+          transform: rotate(-200deg) scale(.3);
+          opacity: 0;
+        }
+
+        50% {
+          opacity: 1;
+        }
+
+        100% {
+          transform-origin: center center;
+          transform: rotate(0) scale(1);
+        }
+      }
+
+      image {
+        width: 406rpx;
+        height: 270rpx;
+      }
+
+      .c_level,
+      .c_score,
+      .c_name,
+      .c_num,
+      .c_avatar {
+        position: absolute;
+        color: #334a9a;
+        font-size: 18rpx;
+        font-weight: bold;
+      }
+
+      .c_level {
+        top: 136rpx;
+        left: 160rpx;
+      }
+
+      .c_name {
+        top: 132rpx;
+        left: 258rpx;
+        width: 110rpx;
+        text-align: center;
+      }
+
+      .c_score {
+        top: 174rpx;
+        left: 202rpx;
+      }
+
+      .c_num {
+        top: 204rpx;
+        left: 208rpx;
+      }
+
+      .c_avatar {
+        height: 122rpx;
+        width: 108rpx;
+        top: 100rpx;
+        left: 38rpx;
+
+        image {
+          height: 100%;
+          width: 100%;
+        }
+      }
+    }
+
+    @keyframes bounce {
+      0% {
+        transform: translateY(0)
+      }
+
+      25% {
+        transform: translateY(15rpx)
+      }
+
+      50% {
+        transform: translateY(0)
+      }
+
+      75% {
+        transform: translateY(-15rpx)
+      }
+
+      100% {
+        transform: translateY(0)
+      }
+    }
+  }
+}
+
+</style>
+<template>
+  <view class="page">
+    <view class="list">
+      <view class="filter flex">
+        <view class="flex flex-column">
+          <view @tap="openMap" class="iconfont icon-gps"></view>
+          <view style="font-size:16rpx;">{{currentclub['name']}}</view>
+        </view>
+        <view @tap="filterChange(1)" class="{{filterIndex==1?'filter_active':''}}">今天</view>
+        <view @tap="filterChange(2)" class="{{filterIndex==2?'filter_active':''}}">明天</view>
+        <view @tap="filterChange(3)" class="iconfont icon-calendar {{filterIndex==3?'filter_active':''}}"></view>
+      </view>
+      <block wx:for="{{scheduleList}}" wx:key="{{index}}">
+        <navigator hover-class="none" url="./appoint?id={{item.id}}" class="gap_bottom content course_item">
+          <view class="image">
+            <image @error="courseImageError({{index}})" mode="aspectFill" src="{{item.course.data.image||'http://cdn.50yoga.cn//pics/vest/vestpic/162.jpg'}}"></image>
+            <view class="booking-status  booking-status1">{{ item.appoint_count >= item.room.data.num ? '已满' : '可预约' }}</view>
+            <view class="course_club" @tap.stop="clubDetail({{item.club.data.id}})">{{item.club.data.name}}</view>
+          </view>
+          <view class="course_info">
+            <view class="course_name flex">
+              <view>{{item.course.data.name}}/{{item.teacher.data.name_en}}</view>
+              <view class="appoint_count flex">
+                <view class="iconfont icon-fire"></view>
+                <view>{{item.course.data.appoint_count}}人次</view>
+              </view>
+            </view>
+            <view class="course_time">
+              <text class="iconfont icon-time"></text>
+              <text>开课：{{item.start}} /教室：{{ item.room.data.name }}/难度:{{item.course.data.level}}星 </text>
+            </view>
+            <view>
+              <text class="iconfont icon-location"></text>
+              <text @tap.stop="gps({{currentclub.mars_lat}},{{currentclub.mars_lon}},{{currentclub.name}},{{currentclub.location}})" class="club_addr">{{currentclub.location}}</text>
+            </view>
+            <view @tap.stop="gps({{currentclub.mars_lat}},{{currentclub.mars_lon}},{{currentclub.name}},{{currentclub.location}})" class="distance">{{currentclub.distance}}km</view>
+          </view>
+        </navigator>
+      </block>
+      <view hidden="{{scheduleList.length!=0}}" class="no_schedule">暂无课程安排</view>
+    </view>
+  </view>
+  <calendarModal :view_id.sync="view_id" :chosenDate.sync="chosenDate" :todayDate="todayDate" :showCalendar.sync="showCalendar" :year.sync="year" :month.sync="month"></calendarModal>
+</template>
+<script>
+import wepy from 'wepy'
+
+import dateformat from '@/utils/Date'
+import CalendarModal from '../../components/calendarModal'
+import Cache from '@/utils/Cache'
+import config from '@/api/config'
+import Event from '../../utils/Event'
+import star from '../../components/star'
+export default class Main extends wepy.page {
+  config = {
+    navigationBarTitleText: '约课',
+    enablePullDownRefresh: true
+  }
+  components = {
+    calendarModal: CalendarModal,
+    star
+  }
+
+  data = {
+    filterIndex: 1,
+    clubId: 0,
+    clubs: [],
+    chosenDate: '',
+    scheduleList: [],
+    showCalendar: false,
+  }
+
+  computed = {
+    currentclub: () => {
+
+      return this.clubs.find(ee => ee.id === parseInt(this.clubId))
+
+    }
+
+  }
+  watch = {
+    chosenDate: (nv, ov) => {
+      if (nv == dateformat.format(new Date(), 'yyyy-MM-dd'))
+        this.filterIndex = 1
+      else
+      if (nv == dateformat.format(dateformat.addDay(new Date(), 1), 'yyyy-MM-dd'))
+        this.filterIndex = 2
+      else this.filterIndex = 0
+      this.getClubSchedule(nv)
+    }
+  }
+
+  methods = {
+    filterChange: (index, e) => {
+      if (this.filterIndex == index)
+        return
+
+      const now = new Date()
+      switch (index) {
+        case '1':
+          this.filterIndex = index
+          this.getClubSchedule(dateformat.format(new Date(), 'yyyy-MM-dd'))
+          break
+        case '2':
+          this.filterIndex = index
+          this.getClubSchedule(dateformat.format(dateformat.addDay(new Date(), 1), 'yyyy-MM-dd'))
+          break
+        case '3':
+          this.showCalendar = true
+          break
+      }
+    },
+    gps: (latitude, longitude, name, address, e) => {
+
+      wepy.openLocation({ latitude, longitude, name, address, scale: 18 })
+    },
+
+    openMap: e => this.$navigate('./clubs'),
+
+  }
+
+  onShareAppMessage(options) {
+    return {
+      title: '快来呀瑜伽一起上课吧！',
+      path: '/pages/appoint/index'
+    }
+  }
+
+  async getClubSchedule(date) {
+    this.chosenDate = date
+    let { data } = await Cache.schedules(this.clubId, date)
+    data.forEach(item => {
+      item.start = item.start.length > 16 ? item.start.substr(0, 16) : item.start
+    })
+    this.scheduleList = data
+    this.$apply()
+  }
+
+
+  switchclub(clubid) {
+    this.clubId = clubid
+    this.getClubSchedule(dateformat.format(new Date(), 'yyyy-MM-dd'))
+  }
+
+  async onLoad({ clubId = 0 }, { preload }) {
+    Event.listen(Event.SWITCH_CLUB, this.switchclub.bind(this), this)
+    if (preload && preload.clubId) {
+      this.clubId = parseInt(preload.clubId)
+      this.getClubSchedule(dateformat.format(new Date(), 'yyyy-MM-dd'))
+      this.clubs = await Cache.clubs()
+    } else {
+      this.clubs = await Cache.clubs()
+      if (!clubId) {
+        clubId = config.getConfig('club_id')
+        if (!clubId) {
+          clubId = this.clubs[0].id
+        }
+      }
+      this.clubId = parseInt(clubId)
+      this.getClubSchedule(dateformat.format(new Date(), 'yyyy-MM-dd'))
+    }
+
+
+  }
+
+
+}
+
+</script>

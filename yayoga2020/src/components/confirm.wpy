@@ -1,0 +1,70 @@
+<style lang="less">  
+.mask {
+  flex-direction: column;
+  justify-content: center;
+}
+</style>
+<template>
+
+  <view hidden="{{hideModal}}" class="mask flex">
+    <form @submit="onSubmit" report-submit>
+      <view class="mask_modal">
+        <view class="mask_title">{{title}}</view>
+        <view class="mask_content">{{content}}</view>
+        <view class="mask_button flex">
+          <view class="mask_btn_ok">
+            <button formType="submit">确定</button>
+          </view>
+          <view class="mask_btn_cancel">
+            <form @submit="onCancel" report-submit>
+             <button formType="submit">取消</button>
+           </form>
+         </view>
+       </view>
+     </view> 
+   </form>
+ </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+
+export default class Confirm extends wepy.component { 
+
+  props = { 
+    title:String,
+    content:String, 
+    hideModal:{
+      type:Boolean,
+      default:false,
+      twoWay:true
+    }
+  }
+  
+  data={
+  }
+
+
+
+  methods = {
+    onSubmit (e) { 
+      let form_id = e.detail.formId
+      console.log('submit formid')
+      this.$parent.$parent.request('POST','uploadformid',{id:form_id},false)  
+      this.$emit('confirm')
+    },
+    onCancel(e){
+      let form_id = e.detail.formId
+      console.log('submit formid')
+      this.$parent.$parent.request('POST','uploadformid',{id:form_id},false)  
+      this.hideModal = true
+      this.$apply()
+      this.$emit('confirm_cancel')
+    } 
+  } 
+
+  async onLoad() {
+    this.$apply()
+  }
+}
+</script>

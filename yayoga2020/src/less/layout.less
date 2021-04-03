@@ -1,0 +1,30 @@
+.layout {
+  display: block;
+
+  .col {
+    display: inline-block;
+    overflow: hidden;
+  }
+
+  .generate(@column, @i: 1, @str) when (@i =< @column) {
+    @{str}@{i} {
+      width: (@i * 100% / @column);
+    }
+
+    .generate(@column, (@i + 1), @str);
+  }
+
+  @col: .col-;
+  .generate(24, 1, @col);
+
+  .generate-offset(@column, @i: 1, @str) when (@i =< @column) {
+    @{str}@{i} {
+      margin-left: (@i * 100% / @column);
+    }
+
+    .generate-offset(@column, (@i + 1), @str);
+  }
+
+  @col-offset: .col-offset-;
+  .generate-offset(24, 1, @col-offset);
+}

@@ -1,0 +1,119 @@
+<style lang="less">
+@import '../../less/color.less';
+.schedule {
+  position: relative;
+  height: 280rpx;
+  width: 94vw;
+  margin: 20rpx auto;
+  box-shadow: 0 0 10rpx 0 rgba(0, 0, 0, 0.1);
+  border-bottom: 1rpx solid @border;
+  border-radius: 10rpx;
+  overflow: hidden;
+  &:last-child {
+    border: none;
+  }
+
+  .course-img {
+    border-radius: 10rpx;
+    filter: brightness(0.9);
+  }
+
+  .course-detail {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+  }
+  .master {
+    position: absolute;
+    top: 3%;
+    right: 2%;
+    width: 120rpx;
+  }
+  .course-info {
+    color: #fff;
+  }
+
+  .course-status {
+    border-top-left-radius: 10rpx;
+    background-color: @theme;
+  }
+
+  .course-type {
+    background-color: rgba(21, 23, 25, 0.8);
+    color: #c0ede3;
+  }
+
+  .rate-container {
+    background-color: rgba(0, 0, 0, 0);
+    padding: 0;
+  }
+  .rate-title {
+    color: #fff;
+  }
+  .rate-icon {
+    font-size: 20rpx;
+    margin-right: 10rpx;
+  }
+  .property {
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+}
+</style>
+<template>
+  <navigator url="/pages/appoint/schedule?id={{item.id}}" class="card schedule flex flex-start font-12" hover-class="none">
+    <image class="course-img" mode="aspectFill" src="{{item.course.data.thumb}}"></image>
+    <view class="course-detail flex flex-column flex-between flex-align-start">
+      <tag type="course-status bg-sci">{{ item.appoint_count >= item.room.data.num ? '已满' : '可预约' }}</tag>
+      <view class="course-info padding-10 font-12 property">
+        <view class="font-16">
+          <tag1 type="course-type">{{ item.sub_type_desc }}</tag1>
+          {{ item.course.data.name }}
+        </view>
+        <view class="rate-container font-14  rate-container__horizontal ">
+          <view class="rate-title ">难度:</view>
+          <view class="rate-content">
+            <repeat for="{{5}}" key="index" index="index" item="item">
+              <icon1 wx:if="{{item.course.data.level>index}}" class="rate-icon rate-icon__stared" type="starbg" handleTap="star" />
+              <icon2 wx:else class="rate-icon" type="stargap" handleTap="star" />
+            </repeat>
+          </view>
+        </view>
+        <view>{{ item.week }} {{ item.start }} / {{ item.room.data.name }} / {{ item.teacher.data.name_en }}</view>
+      </view>
+    </view>
+    <image hidden="{{item.sub_type!==4}}" class="master" mode="widthFix" src="http://cdn.50yoga.cn/pics/source/inyoga/mastertag.png" />
+  </navigator>
+</template>
+<script>
+import wepy from 'wepy'
+import rate from '@/components/rate/index'
+import tag from '@/components/tag/index'
+import Icon from '@/components/icon/index'
+export default class ScheduleItem extends wepy.component {
+  components = {
+    rate,
+    tag,
+    icon1: Icon,
+    icon2: Icon,
+    tag1: tag
+  }
+
+  props = {
+    item: {
+      type: Object,
+      default: {}
+    }
+  }
+
+  data = {
+    level: 0
+  }
+
+  computed = {
+    level() {
+      return this.item && this.item.course ? this.item.course.data.level : 0
+    }
+  }
+}
+</script>

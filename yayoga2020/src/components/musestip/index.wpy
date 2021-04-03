@@ -1,0 +1,122 @@
+<style lang="less">
+  image{
+    width: 587rpx;
+  }
+  .popup-container{
+    background-color: transparent;
+    .body {
+      position: relative;
+      .content-item{
+        position: absolute;
+        top: 260rpx;
+        width: 100%;
+        .title {
+          margin-bottom: 46rpx;
+        }
+        .btn-buy{
+          height:93rpx;
+          margin: 40rpx 94rpx;
+          background:rgba(253,108,137,1);
+          font-size: 42rpx;
+          width: 400rpx;
+        }
+      }
+    }
+  }
+  .line-height-46{
+    line-height:46rpx;
+  }
+  .font-15 {
+    font-size: 15px;
+  }
+  .icon-close-muses{
+    font-size: 42rpx;
+    text-align: center;
+    margin-top: 20rpx;
+    color: #c4c4c4;
+  }
+  .welfare {
+    padding: 0 62rpx;
+    .iconfont {
+      color: #FD6C89;
+      font-size: 22rpx;
+      margin-left: 20rpx;
+      margin-right: 14rpx;
+    }
+  }
+</style>
+
+<template>
+  <popup position="center" :show.sync="show">
+    <view slot="popContainer">
+      <view wx:if="{{success}}" class="body flex flex-column" >
+        <image mode="widthFix" src="https://xcx2018.50yoga.cn/pics/source/YAA/goddess/succes.png" />
+        <view class="content-item ">
+          <view class="font-16 title line-height-46 text-align-center">
+            <view>恭喜您在第{{1}}个月内</view>
+            <view>完成16节瑜伽课，阅读1本书！</view>
+          </view>
+          <view class="gray-txt font-15 line-height-46 welfare">
+            <text class="iconfont icon-diamond-muses"></text>
+            <text>获得第1个月优惠购卡福利</text>
+          </view>
+          <view class="gray-txt font-15 line-height-46 welfare">
+            <text class="iconfont icon-diamond-muses"></text>
+            <text>获得指定瑜伽服折扣劵50元</text>
+          </view>
+          <navigator url="../card/index" class="base-white-color flex border-radius-10 btn-buy margin-top-20">前往续卡</navigator>
+        </view>
+        <view class="iconfont icon-close-muses" @tap="close"></view>
+      </view>
+      <view wx:else class="body flex flex-column" >
+        <image mode="widthFix" src="https://xcx2018.50yoga.cn/pics/source/YAA/goddess/fail.png"/>
+        <view class="content-item ">
+          <view class="font-16 title line-height-46 text-align-center">
+            <view>恭喜您在第{{1}}个月内</view>
+            <view>完成16节瑜伽课，阅读1本书！</view>
+          </view>
+          <view class="gray-txt font-15 line-height-46 welfare">
+            <text>无法享受3-4个月优惠购卡福利 但还是可享受第1-2个月优惠购 卡福利！</text>
+          </view>
+          <navigator url="../card/index" class="base-white-color flex border-radius-10 btn-buy margin-top-20">前往续卡</navigator>
+        </view>
+        <view class="iconfont icon-close-muses" @tap="close"></view>
+      </view>
+    </view>
+  </popup>
+</template>
+<script>
+  import wepy from 'wepy'
+  import Popup from '@/components/popup/index'
+  export default class MusesTip extends wepy.component {
+    components = {
+      popup: Popup
+    }
+    data = {
+      show: true,
+      success: false,
+      arr: ['1-2', '3-4', '5-6', '7-8', '9-10', '11-12']
+    }
+
+    props = {
+      hideTip: {
+        type: Boolean,
+        default: true,
+        twoWay: true
+      },
+      error: {
+        type: Object,
+        default: {}
+      }
+    }
+
+    methods = {
+      close: e => {
+        this.show = false
+      }
+    }
+
+    onLoad() {}
+  }
+
+</script>

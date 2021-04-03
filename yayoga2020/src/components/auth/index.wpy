@@ -1,0 +1,387 @@
+<style lang="less" src="./index.less"></style>
+<template>
+  <popup :show.sync="show" position="center" id="1" class="auth-pop" @pop.user="hideAuthPop">
+    <view slot="popContainer" class="flex flex-column">
+      <avatar :src.sync="authLogo" size="large" shape="circle"></avatar>
+      <view wx:if="{{status == 1}}" class="operate-container">
+        <view class="tip">{{ appName }}申请获得你的公开信息，请点击允许，以获取更多资讯。</view>
+        <button class="btn active-btn" openType="getUserInfo" @getuserinfo="getUserInfo">
+          立即登录
+        </button>
+      </view>
+      <view wx:elif="{{status == 2}}" class="operate-container phone">
+        <view class="tip">使用微信手机号自动登录</view>
+        <view class="switch-txt" @tap="cs(3)">其他手机号码登录</view>
+        <button class="btn active-btn" openType="getPhoneNumber" @getphonenumber="getPhoneInfo">
+          立即登录
+        </button>
+      </view>
+      <form wx:elif="{{status == 3}}" @submit="submit">
+        <view class="operate-container manual flex flex-column">
+          <view class="input-item">
+            <icon type="mobile"></icon>
+            <input-tel :config="tel"></input-tel>
+          </view>
+          <view class="input-item">
+            <icon1 type="verify-code"></icon1>
+            <input-verify :config="verify"></input-verify>
+            <button class="btn btn-sci btn-code" @tap="getVerifyCode">
+              {{ verify_display }}
+            </button>
+          </view>
+          <button class="btn btn-sci" formType="submit">登录</button>
+          <view class="switch-txt" @tap="cs(2)">使用微信手机号自动登录</view>
+        </view>
+      </form>
+    </view>
+  </popup>
+  <view @tap="showAuthPop" hidden="{{status == 0 || show}}" wx:if="{{position==='left'}}" class="auth-login-btn auth-left-btn" style="bottom:{{bottom}}px;">
+    请先登录
+  </view>
+  <view @tap="showAuthPop" hidden="{{status == 0 || show}}" wx:else class="auth-login-btn auth-right-btn" style="bottom:{{bottom}}px;">
+    请先登录
+  </view>
+</template>
+<script>
+import wepy from 'wepy'
+import { authLogo, appName } from '@/utils/Config'
+import auth from '@/api/auth'
+import util from '@/api/util'
+import config from '@/api/config'
+import Avatar from '@/components/avatar/index'
+import Tips from '@/utils/Tips'
+import form from '../../mixins/input'
+import input from '@/components/input/index'
+import Popup from '@/components/popup/index'
+import Icon from '@/components/icon/index'
+import CountDown from '@/mixins/countdown'
+import dateformt from '@/utils/Date'
+import Cache from '@/utils/Cache'
+
+export default class Auth extends wepy.component {
+  props = {
+    active: {
+      // 是否展示弹窗
+      type: [Boolean, String],
+      twoWay: true,
+      default: false
+    },
+    bottom: {
+      type: [Number, String],
+      default: 50
+    },
+    position: {
+      type: String,
+      default: 'right'
+    }
+  }
+
+  components = {
+    popup: Popup,
+    avatar: Avatar,
+    icon: Icon,
+    icon1: Icon,
+    'input-tel': input,
+    'input-verify': input
+  }
+
+  mixins = [form, CountDown]
+
+  computed = {}
+
+  data = {
+    verify_display: '获取验证码',
+    authLogo,
+    appName,
+    status: -1, // 0-is logined  1-show weixin auth  2--show weixin phone auth   3--manual auth
+    show: false,
+    //  status: 1, // 0-is logined  1-show weixin auth  2--show weixin phone auth   3--manual auth
+    // show: true,
+    tel: {
+      error: true,
+      inputType: 'number',
+      name: 'phone',
+      placeholder: '请输入手机号'
+    },
+    verify: {
+      name: 'verify_code',
+      inputType: 'number',
+      placeholder: '请输入验证码'
+    },
+    formdata: {}
+  }
+
+  watch = {
+    status: (nv, ov) => {
+      this.show = nv > 0 && this.active
+      if (nv === 0) {
+        this.$emit('authed')
+      }
+    },
+    totalSeconds: (nv, ov) => {
+      if (nv === 0) {
+        this.verify_display = '获取验证码'
+        this.$apply()
+      } else {
+        this.verify_display = `${nv}s后获取`
+      }
+    }
+  }
+
+  methods = {
+    hideAuthPop: e => {
+      this.show = false
+    },
+    showAuthPop: e => {
+      this.show = true
+      if (this.status === 0) {
+        this.status = 1
+      }
+    },
+    cs: status => {
+      this.status = status
+    },
+    getUserInfo: async e => {
+      if (e.detail.errMsg !== 'getUserInfo:ok') {
+        return
+      }
+      let ret = await this.autoLogin()
+      if (ret) {
+        this.status = 0
+      } else {
+        this.status = 2
+      }
+      this.$apply()
+    },
+    getPhoneInfo: async e => {
+      if (e.detail.errMsg !== 'getPhoneNumber:ok') {
+        this.status = 3
+        return
+      }
+      let ret = await this.loginByPhone(e)
+      if (ret) {
+        this.status = 0
+      } else {
+        Tips.error('自动登录失败，请手动登录')
+        this.status = 3
+      }
+      this.$apply()
+    },
+    submit: async e => {
+      Object.assign(this.formdata, e.detail.value)
+      if (!this.validate(2)) {
+        return
+      }
+      let ret = await this.login(e)
+      if (ret) {
+        this.status = 0
+      } else {
+        // Tips.error('登录失败，请重试')
+        this.status = 3
+      }
+      this.$apply()
+    },
+    getVerifyCode: async e => {
+      if (!this.validate(1)) {
+        return
+      }
+      try {
+        await util.verify({
+          phone: this.formdata.phone
+        })
+        this.countDown(dateformt.addSeconds(120))
+        Tips.success('验证码已发送')
+        this.$apply()
+      } catch (e) {
+        Tips.error(e)
+      }
+    }
+  }
+
+  validate(status) {
+    const rules1 = [{
+        value: this.formdata.phone,
+        method: 'required',
+        message: '电话不能为空'
+      },
+      {
+        value: this.formdata.phone,
+        method: 'tel',
+        message: '电话格式错误'
+      }
+    ]
+    const rules2 = [
+      ...rules1,
+      {
+        value: this.formdata.verify_code,
+        method: 'required',
+        message: '验证码不能为空'
+      }
+    ]
+    if (status === 1) {
+      return this.check(rules1)
+    } else {
+      return this.check(rules2)
+    }
+  }
+
+  events = {
+    onInput: (e, v) => {
+      console.log(v)
+      console.log(e)
+      if (v.name == 'phone') this.formdata.phone = e
+      console.log(this.formdata)
+    },
+    activeAuth: e => {
+      this.active = true
+      this.show = this.status > 0 && this.active
+    },
+    logout: e => {
+      this.active = true
+      this.status = 3
+      this.show = true
+    }
+  }
+
+  async login(e) {
+    console.log('wx login')
+    const res = await wepy.login()
+    let data = e.detail.value
+    let location = Cache.get('LOCATION')
+    if (location) {
+      const { latitude, longitude } = location
+      data.lat = latitude
+      data.lon = longitude
+    }
+    data.code = res.code
+
+    const userInfo = await wepy.getUserInfo()
+    data.avatar = userInfo.userInfo.avatarUrl
+    data.nickname = userInfo.userInfo.nickName
+    data.iv = userInfo.iv
+    data.encryptedData = userInfo.encryptedData
+    data.recommend_id = config.getConfig('recommendId')
+    data.channel_id = config.getConfig('channelId')
+    data.ext = config.getConfig('ext')
+
+    data.session_key = wepy.getStorageSync('session_key')
+
+
+    try {
+      const rsp = await auth.login(data)
+
+      wepy.setStorageSync('session_key', rsp.session_key)
+
+
+      const token = rsp.token
+      const profile = rsp.profile
+      if (token !== '') {
+        await wepy.$instance.storeConfig('token', token)
+        await wepy.$instance.storeConfig('profile', profile)
+        return true
+      }
+    } catch (err) {
+      Tips.error(err)
+    }
+    this.$apply()
+    return false
+  }
+
+  async loginByPhone(e) {
+    console.log('wx login')
+    const res = await wepy.login()
+    const userInfo = await wepy.getUserInfo()
+    let data = e.detail
+    let location = Cache.get('LOCATION')
+    if (location) {
+      const { latitude, longitude } = location
+      data.lat = latitude
+      data.lon = longitude
+    }
+
+    data.code = res.code
+    data.avatar = userInfo.userInfo.avatarUrl
+    data.nickname = userInfo.userInfo.nickName
+
+    data.recommend_id = config.getConfig('recommendId')
+    data.channel_id = config.getConfig('channelId')
+    data.ext = config.getConfig('ext')
+    data.session_key = wepy.getStorageSync('session_key')
+    try {
+      const rsp = await auth.loginByPhone(data)
+      wepy.setStorageSync('session_key', rsp.session_key)
+      const token = rsp.token
+      const profile = rsp.profile
+      if (token !== '') {
+        await wepy.$instance.storeConfig('token', token)
+        await wepy.$instance.storeConfig('profile', profile)
+        return true
+      }
+    } catch (err) {
+      console.log('error')
+    }
+    this.$apply()
+    return false
+  }
+
+  async autoLogin() {
+    console.log('wx login')
+    const res = await wepy.login()
+    const userInfo = await wepy.getUserInfo()
+    let data = {}
+    let location = Cache.get('LOCATION')
+    if (location) {
+      const { latitude, longitude } = location
+      data.lat = latitude
+      data.lon = longitude
+    }
+    data.code = res.code
+    data.avatar = userInfo.userInfo.avatarUrl
+    data.nickname = userInfo.userInfo.nickName
+    data.iv = userInfo.iv
+    data.encryptedData = userInfo.encryptedData
+    data.recommend_id = config.getConfig('recommendId')
+    data.channel_id = config.getConfig('channelId')
+    data.ext = config.getConfig('ext')
+    data.session_key = wepy.getStorageSync('session_key')
+
+    try {
+      const rsp = await auth.autoLogin(data)
+      wepy.setStorageSync('session_key', rsp.session_key)
+      const token = rsp.token
+      const profile = rsp.profile
+      if (token !== '') {
+        await wepy.$instance.storeConfig('token', token)
+        await wepy.$instance.storeConfig('profile', profile)
+        return true
+      }
+    } catch (err) {}
+    this.$apply()
+    return false
+  }
+
+  async onLoad() {
+    let isLogin = wepy.$instance.isLogin()
+    if (isLogin) {
+      this.status = 0
+      this.$apply()
+      return
+    }
+
+    const { authSetting } = await wepy.getSetting()
+    if (authSetting['scope.userInfo']) {
+      let ret = await this.autoLogin()
+      if (ret) {
+        this.status = 0
+        // return
+      } else {
+        this.status = 2
+      }
+    } else {
+      this.status = 1
+    }
+    this.$apply()
+  }
+}
+
+</script>

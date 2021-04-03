@@ -1,0 +1,192 @@
+<style lang="less">
+@import '../../less/color.less';
+.appoint-list {
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+.appoint-item {
+  position: relative;
+  display: inline-block;
+  width: 400rpx;
+  height: 250rpx;
+  color: #fff;
+  border-radius: 10rpx;
+  overflow: hidden;
+  margin-right: 10rpx;
+  &:last-child {
+    margin-right: 0;
+  }
+}
+
+.appoint-bg {
+  border-radius: 10rpx;
+  filter: brightness(0.7);
+  background-color: @gray;
+}
+
+.blur-img {
+  filter: blur(5px);
+}
+
+.appoint-detail {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+}
+
+.top-tag {
+  line-height: 40rpx;
+  font-size: 22rpx;
+  border-radius: 10rpx 0 20rpx 0;
+  padding: 0 16rpx;
+  background-color: @theme;
+}
+.disabled {
+  background-color: @disabled;
+}
+.name-txt {
+  padding: 20rpx;
+  box-sizing: border-box;
+}
+
+.pos-txt {
+  padding-right: 20rpx;
+}
+
+.option-mask {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background: rgba(255, 140, 150, 0.6);
+  padding: 30rpx;
+  box-sizing: border-box;
+
+  .iconfont {
+    color: red;
+    width: 58rpx;
+    height: 58rpx;
+    background: #fff;
+    border-radius: 50%;
+    display: flex;
+    display: -webkit-flex;
+    align-items: center;
+    -webkit-align-items: center;
+    justify-content: center;
+    -webkit-justify-content: center;
+  }
+}
+
+.to-appoint {
+  display: inline-block;
+  width: 100%;
+  height: 250rpx;
+}
+</style>
+<template>
+  <scroll-view class="appoint-list scroll-view padding-5" scroll-x>
+    <repeat for="{{list}}">
+      <view class="appoint-item margin-right-10" @tap="showOptions({{index}})">
+        <image class="{{opIndex == index ? 'blur-img' : 'appoint-bg'}}" mode="aspectFill" src="{{item.schedule.data.course.data.image}}"></image>
+        <view class="appoint-detail flex flex-column flex-between font-11">
+          <view class="width-100 flex flex-between">
+            <view class="top-tag {{item.can_cancel?'':'disabled'}}">{{ item.can_cancel ? '可' : '不可' }}取消</view>
+            <view class="pos-txt font-10">{{ item.schedule.data.room.data.name }}/席位：{{ item.pos }}</view>
+          </view>
+          <view class="width-100 name-txt">
+            <view>
+              <text class="font-12">{{ item.schedule.data.course.data.name }}</text>
+              / {{ item.schedule.data.teacher.data.name_en }}
+            </view>
+            <view> {{ item.schedule.data.club.data.name }}/{{ formater.timeline(item.schedule.data.start) }}开课</view>
+          </view>
+        </view>
+        <view class="flex flex-around option-mask font-11" hidden="{{opIndex != index}}" @tap.stop="hide">
+          <block wx:for="{{options}}" wx:key="{{index}}">
+            <view class="flex flex-column" @tap.stop="state({{index}})">
+              <text class="iconfont icon-{{item.type}}"></text>
+              <text class="margin-top-20">{{ item.name }}</text>
+            </view>
+          </block>
+        </view>
+      </view>
+    </repeat>
+    <image
+      wx:if="{{list.length > 0}}"
+      @tap="toSchedules"
+      class="appoint-item margin-right-10"
+      mode="aspectFill"
+      src="http://cdn.50yoga.cn/pics/source/inyoga/appoint-small.jpg"
+    ></image>
+    <image
+      wx:if="{{list.length === 0}}"
+      @tap="toSchedules"
+      class="to-appoint"
+      mode="widthFix"
+      src="http://cdn.50yoga.cn/pics/source/inyoga/appoint-big.png"
+    ></image>
+  </scroll-view>
+</template>
+<script>
+import wepy from 'wepy'
+import Tips from '@/utils/Tips'
+import mywxs from '../../wxs/mywxs.wxs'
+import api from '@/api/appoint'
+import Event from '@/utils/Event'
+export default class AppointList extends wepy.component {
+  components = {}
+
+  wxs = {
+    formater: mywxs
+  }
+
+  props = {
+    list: {
+      type: Array,
+      default: []
+    }
+  }
+
+  data = {
+    options: [{ type: 'display', name: '查看课程' }, { type: 'trash', name: '取消预约' }],
+    opIndex: -1
+  }
+
+  methods = {
+    hide: e => {
+      this.opIndex = -1
+    },
+    showOptions: index => {
+      this.opIndex = index
+    },
+    state: async index => {
+      const appoint = this.list[this.opIndex]
+      switch (index) {
+        case 0:
+          this.$parent.$navigate(`/pages/appoint/seat?id=${appoint.schedule.data.id}`)
+          break
+        case 1:
+          await Tips.confirm('确认取消该课程吗？')
+          try {
+            await api.del(appoint.id)
+            Event.emit(Event.APPOINT_CHANGE)
+          } catch (err) {
+            Tips.error(err)
+            this.opIndex = -1
+          }
+          this.$apply()
+          break
+      }
+    },
+    toSchedules: e => {
+      this.$parent.$navigate('/pages/appoint/schedules')
+    }
+  }
+
+  onLoad() {}
+}
+</script>

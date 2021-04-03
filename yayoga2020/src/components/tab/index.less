@@ -1,0 +1,179 @@
+@import '../../less/color.less';
+@import '../../less/mixins.less';
+
+.tab-content {
+  .flex-container(row, flex-start);
+  background-color: #fff;
+  border-bottom: 2px solid #fff;
+  position: relative;
+
+  .animate-border {
+    background-color: #fff;
+    position: absolute;
+    left: 0;
+    bottom: -1px;
+    width: 0;
+    height: 2px;
+  }
+
+  .tab {
+    .flex-container();
+    flex: 1;
+    font-size: 14px;
+
+    &.active {
+      .tab-text {
+        // border-bottom: 2px solid #333;
+      }
+    }
+    .sub-tab-text {
+      padding: 0 5px;
+      overflow: hidden;
+      white-space: pre;
+      text-align: center;
+      font-size: 20rpx;
+      color: #999;
+      // border-bottom: 2px solid #fff;
+    }
+    .tab-text {
+      padding: 0 5px;
+      height: 100%;
+      overflow: hidden;
+      white-space: pre;
+      text-align: center;
+      // border-bottom: 2px solid #fff;
+    }
+  }
+}
+
+.scroll-tab-content {
+  width: 100vw;
+  white-space: nowrap;
+  background-color: #fff;
+
+  .scroll-tab__content {
+    position: relative;
+
+    .animate-border {
+      background-color: #fff;
+      position: absolute;
+      left: 0;
+      bottom: -1px;
+      width: 0;
+      height: 2px;
+    }
+  }
+
+  .tab {
+    padding: 0 20px;
+    display: inline-block;
+    font-size: 14px;
+
+    &.active {
+      .tab-text {
+        line-height: 45px;
+        // border-bottom:2px solid #333;
+      }
+    }
+
+    .tab-text {
+      color: #666;
+      padding: 0 5px;
+    }
+  }
+}
+
+.tab-success {
+  .tab {
+    .tab-text {
+      color: #666;
+    }
+
+    &.active {
+      .tab-text {
+        color: @success;
+        border-bottom: 2px solid @success;
+      }
+    }
+  }
+
+  .animate-border {
+    background-color: @success !important;
+  }
+}
+
+.tab-sci {
+  .tab {
+    .tab-text {
+      color: #666;
+    }
+
+    &.active {
+      .tab-text {
+        color: @theme;
+        border-bottom: 2px solid @theme;
+      }
+    }
+  }
+
+  .animate-border {
+    background-color: @theme !important;
+  }
+}
+
+.tab-primary {
+  .tab {
+    .tab-text {
+      color: #666;
+    }
+
+    &.active {
+      .tab-text {
+        color: @primary;
+        border-bottom: 2px solid @primary;
+      }
+    }
+  }
+
+  .animate-border {
+    background-color: @primary !important;
+  }
+}
+
+.tab-danger {
+  .tab {
+    .tab-text {
+      color: #666;
+    }
+
+    &.active {
+      .tab-text {
+        color: @danger;
+        border-bottom: 2px solid @danger;
+      }
+    }
+  }
+
+  .animate-border {
+    background-color: @danger !important;
+  }
+}
+
+.tab-gray {
+  .tab {
+    .tab-text {
+      color: #666;
+    }
+
+    &.active {
+      .tab-text {
+        color: @gray;
+        border-bottom: 2px solid @gray;
+      }
+    }
+  }
+
+  .animate-border {
+    background-color: @gray !important;
+  }
+}

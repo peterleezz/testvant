@@ -1,0 +1,37 @@
+<script>
+import wepy from 'wepy'
+export default class Setting extends wepy.mixin {
+  checkSetting(type) {
+    let that = this
+    wx.getSetting({
+      success({ authSetting }) {
+        if (!authSetting[type]) {
+          // 如果未授权，则打开设置页面
+          wx.openSetting({
+            success({ authSetting }) {
+              if (authSetting[type]) {
+                // 如果打开了授权
+                that.settingOpened(type)
+              } else {
+                wx.showToast({ title: '请打开授权', icon: 'none' })
+              }
+            }
+          })
+        } else {
+          that.settingOpened(type)
+        }
+      }
+    })
+  }
+  async autoCheckSetting(type) {
+    let { authSetting } = await wepy.getSetting()
+    console.log(authSetting, type, !authSetting[type])
+    if (!authSetting[type]) {
+      // 如果未授权，则显示授权组件
+      this.$broadcast('activeOpenSetting')
+    } else {
+      this.settingOpened(type)
+    }
+  }
+}
+</script>

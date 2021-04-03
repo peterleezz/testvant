@@ -1,0 +1,48 @@
+<style lang="less"></style>
+<template>
+  <swiper style="height:{{height}}px" indicator-active-color="#fff" indicator-dots="{{dots}}" autoplay="true" circular="true" circular="500">
+    <block wx:for="{{pics}}" wx:key="{{index}}">
+      <swiper-item>
+        <image mode="{{mode}}" class="banner-img" src="{{item}}" @tap="onClick({{item}},{{index}})" lazy-load="true"></image>
+      </swiper-item>
+    </block>
+  </swiper>
+</template>
+<script>
+import wepy from 'wepy'
+export default class MySwiper extends wepy.component {
+  props = {
+    height: {
+      type: String,
+      default: '160'
+    },
+    pics: {
+      type: Array,
+      default: ['']
+    },
+    handTap: {
+      type: String,
+      default: ''
+    },
+    mode: {
+      type: String,
+      default: 'aspectFill'
+    }
+  }
+  computed = {
+    dots: () => this.pics && this.pics.length > 1
+  }
+  methods = {
+    async onClick(item, index) {
+      if (this.handTap !== '') {
+        this.$emit(this.handTap, item)
+      } else {
+        await wepy.previewImage({
+          current: 0, // 当前显示图片的http链接
+          urls: [item] // 需要预览的图片http链接列表
+        })
+      }
+    }
+  }
+}
+</script>

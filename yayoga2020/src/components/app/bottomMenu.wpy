@@ -1,0 +1,38 @@
+<style lang="less"></style>
+<template>
+  <view class="bottom-menu">
+    <view class="sub-ops">
+      <navigator class="op-item" url="/pages/main/index" open-type="switchTab">
+        <image class="iconfont" src="http://cdn.50yoga.cn/pics/source/yogaactivity/in_click.png"></image>
+        <view>首页</view>
+      </navigator>
+      <view class="op-item" @tap="share">
+        <image class="iconfont" src="http://cdn.50yoga.cn/pics/source/yogaactivity/share-btn.png"></image>
+        <view>转发</view>
+      </view>
+    </view>
+    <button class="btn-sci btn" @tap="click">{{ title }}</button>
+  </view>
+  <share></share>
+</template>
+<script>
+import wepy from 'wepy'
+
+import share from '@/components/common/share'
+export default class BottomMenu extends wepy.component {
+  components = {
+    share
+  }
+
+  props = {
+    title: {
+      type: String,
+      default: '购买'
+    }
+  }
+  methods = {
+    share: e => this.$invoke('share', 'show'),
+    click: e => this.$emit('clickBottomMenu')
+  }
+}
+</script>

@@ -1,0 +1,143 @@
+<script>
+import wepy from 'wepy'
+import Tips from '@/utils/Tips'
+/*
+ ** canvas绘图常用方法
+ */
+export default class CanvasMixin extends wepy.mixin {
+  /*
+   ** 绘制canvas背景
+   ** ctx canvas上下文
+   ** img重复的图像源，仅支持包内路径和临时路径；repeat重复图像(repeat:水平竖直方向都重复，repeat-x:水平方向重复，
+   ** repeat-y:竖直方向重复，no-repeat:不重复)；x,y起点；w,h宽高
+   */
+  bgImg(ctx, img, repeat, x, y, w, h) {
+    const pattern = ctx.createPattern(img, repeat)
+    ctx.fillStyle = pattern
+    ctx.fillRect(x, y, w, h)
+  }
+  /*
+   ** 绘制图片
+   ** src是图片url地址，必须在小程序downloadFile合法域名中；x,y是起点；w,h是宽高
+   ** 注意调用时使用await
+   */
+  async drawImg(ctx, src, x, y, w, h) {
+    const { path, width, height } = await wepy.getImageInfo({
+      src
+    })
+    console.log(src, width, height)
+    ctx.drawImage(path, x, y, w, h)
+  }
+  /*
+   ** 绘制文字
+   ** text是文字内容；size是文字大小；style是文字颜色；align是文字对齐方式；x,y是起点
+   */
+  text(ctx, text, size, style, align, x, y) {
+    ctx.setFontSize(size)
+    ctx.setFillStyle(style)
+    ctx.textAlign = align
+    ctx.fillText(text, x, y)
+  }
+  /*
+   ** 绘制圆形头像
+   ** src是头像地址；x,y是起点；w是头像直径
+   */
+  async avatar(ctx, src, x, y, w) {
+    ctx.save()
+    ctx.beginPath()
+    ctx.arc(w / 2 + x, w / 2 + y, w / 2, 0, Math.PI * 2)
+    ctx.fill()
+    ctx.clip()
+    const { path } = await wepy.getImageInfo({
+      src
+    })
+    ctx.drawImage(path, x, y, w, w)
+    ctx.restore()
+    ctx.closePath()
+  }
+  /*
+   ** 绘制圆角矩形或圆
+   ** x,y是矩形的起点；w,h是矩形的宽高；r是圆角矩形的半径；color是圆角矩形的背景色
+   */
+  roundRect(ctx, x, y, w, h, r, color = '#fff') {
+    if (w < 2 * r) {
+      r = w / 2
+    }
+    if (h < 2 * r) {
+      r = h / 2
+    }
+    ctx.beginPath()
+    ctx.moveTo(x + r, y)
+    ctx.arcTo(x + w, y, x + w, y + h, r)
+    ctx.arcTo(x + w, y + h, x, y + h, r)
+    ctx.arcTo(x, y + h, x, y, r)
+    ctx.arcTo(x, y, x + w, y, r)
+    ctx.closePath()
+    ctx.setFillStyle(color)
+    ctx.fill()
+  }
+  /*
+   ** 绘制好图片后，保存临时路径
+   ** x,y是起点；w,h是宽高；canvasId是canvas的id
+   */
+  tempImg(w, h, tempPath, canvasId = 'share', x = 0, y = 0) {
+    setTimeout(async () => {
+      const { tempFilePath } = await wepy.canvasToTempFilePath({
+        x,
+        y,
+        canvasId,
+        destWidth: w,
+        destHeight: h
+      })
+      this[tempPath] = tempFilePath
+    }, 500)
+  }
+  /*
+   ** 绘制好图片后，直接保存
+   ** x,y是起点；w,h是宽高；content是保存图片后的提示；canvasId是canvas的id
+   ** saved() 页面中自定义的函数，用于处理图片保存后的操作
+   */
+  saveImg(w, h, content = '保存成功，快把图片分享到朋友圈吧~', canvasId = 'share', x = 0, y = 0) {
+    setTimeout(async () => {
+      let ret = await wepy.canvasToTempFilePath({
+        x,
+        y,
+        canvasId,
+        destWidth: w,
+        destHeight: h
+      })
+      await wepy.saveImageToPhotosAlbum({
+        filePath: ret.tempFilePath
+      })
+      await Tips.modal(content)
+      this.saved()
+    }, 500)
+  }
+  /*
+   ** 绘制好图片后，通过点击按钮等其他方式由用户触发保存
+   ** x,y是起点；w,h是宽高；content是保存图片后的提示；canvasId是canvas的id
+   ** saved() 页面中自定义的函数，用于处理图片保存后的操作
+   */
+  async handleSaveImg(tempFilePath, content = '保存成功，快把图片分享到朋友圈吧~') {
+    try {
+      if (!tempFilePath.length) {
+        throw new Error('图片保存失败，请重新再试')
+      }
+      await wepy.saveImageToPhotosAlbum({
+        filePath: tempFilePath
+      })
+      await Tips.modal(content)
+      this.saved()
+    } catch (err) {
+      let { authSetting } = await wepy.getSetting()
+      if (!authSetting['scope.writePhotosAlbum']) {
+        Tips.error('请打开 保存到相册 功能')
+        setTimeout(() => {
+          wepy.openSetting()
+        }, 1000)
+      }
+      Tips.error(err)
+    }
+  }
+}
+</script>

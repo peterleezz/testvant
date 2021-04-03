@@ -1,0 +1,38 @@
+<style lang="less" src="./index.less"></style>
+<style lang="less" src="../loading/index.less"></style>
+<template>
+  <view class="loadmore">
+    <block wx:if="{{page.loading}}">
+      <view class="loading-content inline">
+        <view class="loading-type circular"></view>
+        <text>{{'加载中'}}</text>
+      </view>
+    </block>
+    <block wx:if="{{!page.empty && page.reachBottom}}">
+      <text class="lighter">————</text><text> {{'没有更多数据了...'}} </text><text class="lighter">————</text>
+    </block>
+    <block wx:if="{{!page.loading && page.empty && emptyText}}">
+      <text class="lighter">————</text><text> {{emptyText}}</text><text class="lighter">————</text>
+    </block>
+    <block wx:if="{{!page.loading && !page.empty && !page.reachBottom}}">
+      <text class="lighter">————</text><text @tap="tap"> 点击加载更多... </text><text class="lighter">————</text>
+    </block>
+  </view>
+</template>
+<script>
+import wepy from 'wepy'
+export default class LoadMore extends wepy.component {
+  props = {
+    emptyText: {},
+    page: {}
+  }
+
+  methods = {
+    tap: () => {
+      console.log('xxxx')
+      this.$emit('next')
+    }
+  }
+}
+
+</script>

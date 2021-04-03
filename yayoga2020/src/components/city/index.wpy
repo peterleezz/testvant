@@ -1,0 +1,122 @@
+<style lang="less">
+@import '../../less/color.less';
+.cityfilter {
+  scroll-view {
+    height: 600rpx;
+  }
+  .city {
+    border-right: 2rpx solid @success;
+  }
+  .layout {
+    padding: 40rpx;
+    margin-bottom: 80rpx;
+    .col {
+      vertical-align: top;
+    }
+  }
+  .city-item {
+    display: inline-block;
+    margin: 10rpx 0;
+  }
+  .city-active {
+    border-bottom: 6rpx solid @success;
+  }
+  .club-active {
+    background: @success !important;
+    color: #fff;
+  }
+  .club-item {
+    display: inline-block;
+    margin: 20rpx 0;
+    background: @bg;
+  }
+}
+</style>
+<template>
+  <view class="cityfilter">
+    <popup :show.sync="show" position="bottom">
+      <block slot="popContainer">
+        <view class="layout layout-list font-14 text-align-center">
+          <scroll-view scroll-y class="col col-6 city">
+            <block wx:for="{{cities}}" wx:key="{{index}}">
+              <view>
+                <view class="{{item == city?' city-active city-item':'city-item'}}" @tap="cityChange({{item}})">{{ item }}</view>
+              </view>
+            </block>
+          </scroll-view>
+          <scroll-view scroll-y class="col col-17">
+            <block wx:for="{{clubsOfCity}}" wx:key="{{index}}">
+              <view>
+                <view class="{{item.id == club.id?' club-active club-item':'club-item'}}" @tap="clubChange({{item}})">{{ item['name'] }}</view>
+              </view>
+            </block>
+          </scroll-view>
+        </view>
+        <button class="btn button-fixed-bottom  btn-sci" @tap.stop="onSubmit">确定</button>
+      </block>
+    </popup>
+  </view>
+</template>
+<script>
+import wepy from 'wepy'
+import Icon from '@/components/icon/index'
+import popup from '@/components/popup/index'
+import Cache from '@/utils/Cache'
+import config from '@/api/config'
+export default class city extends wepy.component {
+  props = {
+    show: {
+      type: Boolean,
+      default: false,
+      twoWay: true
+    }
+  }
+  components = {
+    icon: Icon,
+    icon1: Icon,
+    popup: popup
+  }
+
+  data = {
+    clubs: [],
+    club: {},
+    city: ''
+  }
+
+  methods = {
+    cityChange: e => {
+      this.city = e
+      this.club = null
+    },
+    clubChange: e => {
+      this.club = e
+    },
+    onSubmit: e => {
+      this.show = false
+      if (this.club) {
+        config.setConfig('club_id', this.club.id)
+        wepy.setStorageSync('LAST_APPOINT_CITY', this.city)
+        this.$emit('clubChange', this.club, this.city)
+      }
+    }
+  }
+  events = {
+    initClubId: e => (this.club = this.clubs.find(ee => ee.id === parseInt(e)))
+  }
+  computed = {
+    clubsOfCity: () => this.clubs.filter(e => e.city === this.city),
+    cities: () => Array.from(new Set(this.clubs.map(e => e.city)))
+  }
+  async onLoad() {
+    this.clubs = await Cache.clubs()
+    let clubId = config.getConfig('club_id')
+    if (!clubId) {
+      clubId = this.clubs[0].id
+    }
+    this.club = this.clubs.find(e => e.id === parseInt(clubId))
+    this.city = this.club.city
+    console.log(this.club)
+    this.$apply()
+  }
+}
+</script>

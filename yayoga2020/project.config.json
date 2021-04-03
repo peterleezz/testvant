@@ -1,0 +1,106 @@
+{
+  "description": "A WePY project",
+  "setting": {
+    "urlCheck": false,
+    "es6": false,
+    "enhance": false,
+    "postcss": false,
+    "preloadBackgroundData": false,
+    "minified": false,
+    "newFeature": true,
+    "coverView": true,
+    "nodeModules": false,
+    "autoAudits": false,
+    "showShadowRootInWxmlPanel": true,
+    "scopeDataCheck": false,
+    "uglifyFileName": false,
+    "checkInvalidKey": true,
+    "checkSiteMap": true,
+    "uploadWithSourceMap": true,
+    "compileHotReLoad": false,
+    "useMultiFrameRuntime": false,
+    "useApiHook": true,
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    },
+    "enableEngineNative": false,
+    "useIsolateContext": true,
+    "useCompilerModule": true,
+    "userConfirmedUseCompilerModuleSwitch": false,
+    "packNpmManually": false,
+    "packNpmRelationList": [],
+    "minifyWXSS": true
+  },
+  "compileType": "miniprogram",
+  "appid": "wx554e80845a0de122",
+  "projectname": "YAYOGA",
+  "miniprogramRoot": "dist/",
+  "libVersion": "2.0.0",
+  "simulatorType": "wechat",
+  "simulatorPluginLibVersion": {},
+  "condition": {
+    "plugin": {
+      "list": []
+    },
+    "game": {
+      "list": []
+    },
+    "gamePlugin": {
+      "list": []
+    },
+    "miniprogram": {
+      "list": [
+        {
+          "id": -1,
+          "name": "让百万人爱上瑜伽运动",
+          "pathName": "pages/main/detail",
+          "query": ""
+        },
+        {
+          "id": -1,
+          "name": "选择上课场馆",
+          "pathName": "pages/main/clubs",
+          "query": ""
+        },
+        {
+          "id": -1,
+          "name": "瑜伽新人",
+          "pathName": "pages/pt/index",
+          "query": ""
+        },
+        {
+          "id": 3,
+          "name": "我的",
+          "pathName": "pages/me/index",
+          "query": ""
+        },
+        {
+          "name": "pages/appoint/appoint",
+          "pathName": "pages/appoint/appoint",
+          "query": "id= 608499",
+          "scene": null
+        },
+        {
+          "name": "pages/appoint/clubs",
+          "pathName": "pages/appoint/clubs",
+          "query": "id= 608499",
+          "scene": null
+        },
+        {
+          "name": "pages/pt/add",
+          "pathName": "pages/pt/add",
+          "query": "id=189&name=\"Peter\"",
+          "scene": null
+        },
+        {
+          "name": "pages/pt/index",
+          "pathName": "pages/pt/index",
+          "query": "id=189&name=\"Peter\"",
+          "scene": null
+        }
+      ]
+    }
+  }
+}

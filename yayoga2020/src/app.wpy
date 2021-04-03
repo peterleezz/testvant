@@ -1,0 +1,163 @@
+<style lang="less" src="./less/index.less"></style>
+<style lang="less" src="./less/font.less"></style>
+<style lang="less" src="./less/app.less"></style>
+<style src="./resources/app.css">
+</style>
+<script>
+import wepy from 'wepy'
+import 'wepy-async-function'
+import { app, env } from './utils/Config'
+
+export default class extends wepy.app {
+  config = {
+    pages: [
+      'pages/appoint/index',
+      'pages/main/ptappointhistory',
+      'pages/pt/add',
+      'pages/pt/index',
+
+      'pages/main/appointhistory',
+      'pages/main/me',
+      'pages/appoint/appoint',
+      'pages/appoint/map',
+      'pages/appoint/clubs',
+
+    ],
+    permission: {
+      'scope.userLocation': {
+        'desc': '你的位置信息将用于展示附近的场馆'
+      }
+    },
+    window: {
+      backgroundTextStyle: 'light',
+      navigationBarTitleText: '呀瑜伽会员平台',
+      navigationBarBackgroundColor: '#fff',
+      navigationBarTextStyle: 'black'
+    },
+    tabBar: {
+      color: '#bfbfbf',
+      selectedColor: '#79a9ac',
+      backgroundColor: '#fff',
+      borderStyle: 'black',
+      list: [
+
+        {
+          pagePath: 'pages/appoint/index',
+          text: '公开课',
+          iconPath: 'resources/tab/social_unclick.png',
+          selectedIconPath: 'resources/tab/social_click.png',
+        },
+        {
+          pagePath: 'pages/pt/index',
+          text: '私教课',
+          iconPath: 'resources/tab/playCard.png',
+          selectedIconPath: 'resources/tab/playCard-click.png',
+        },
+        {
+          pagePath: 'pages/main/me',
+          text: '我的',
+          iconPath: 'resources/tab/me_unclick.png',
+          selectedIconPath: 'resources/tab/me_click.png',
+        }
+      ]
+    }
+
+  }
+  globalData = {
+    profile: null,
+    token: '',
+    config: {}
+  }
+
+
+  isLogin() {
+    return this.globalData.profile !== null
+  }
+
+  getUid() {
+    return this.globalData.profile.id
+  }
+  getToken() {
+    return this.globalData.token
+  }
+
+  constructor() {
+    super()
+    this.use('requestfix')
+    this.use('promisify')
+    this.intercept('request', {
+      config(p) {
+        p.header = this.createAuthHeader()
+        return p
+      }
+    })
+    this.intercept('uploadFile', {
+      config(p) {
+        p.header = this.createAuthHeader()
+        return p
+      },
+      success(p) {
+        return p.data
+      }
+    })
+  }
+
+  createAuthHeader() {
+    let token = wepy.$instance.globalData.token
+    const header = {
+      app,
+      no: '2',
+      'content-type': 'application/x-www-form-urlencoded',
+      Accept: 'application/vnd.sci.v2+json'
+    }
+    if (token) {
+      header['Authorization'] = 'Bearer ' + token
+    }
+    return header
+  }
+  syncStoreConfig(key) {
+    const value = wepy.getStorageSync(key)
+    if (value !== '') {
+      wepy.$instance.globalData[key] = value
+    }
+  }
+  storeConfig(key, value) {
+    wepy.$instance.globalData[key] = value
+    wepy.setStorageSync(key, value)
+  }
+
+  async onLaunch(options) {
+    this.syncStoreConfig('token')
+    this.syncStoreConfig('config')
+    this.syncStoreConfig('profile')
+    console.log('onLaunch')
+    console.log(wepy.$instance.globalData)
+  }
+
+  decode(options) {
+    let { id, recommendId, channelId, scene, ext } = options
+    let newScene = decodeURIComponent(scene)
+    if (newScene !== undefined && newScene !== 'undefined' && newScene !== '') {
+      let qrcode = newScene.split(',')
+      id = qrcode[0]
+      recommendId = qrcode[1]
+      channelId = qrcode[2]
+      ext = qrcode[3]
+    }
+    if (channelId) {
+      config.setConfig('channelId', channelId)
+    }
+    if (recommendId) {
+      config.setConfig('recommendId', recommendId)
+    }
+    if (ext) {
+      config.setConfig('ext', ext)
+    }
+    return { id, recommendId, channelId, ext }
+  }
+
+
+
+}
+
+</script>

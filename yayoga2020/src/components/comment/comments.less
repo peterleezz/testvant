@@ -1,0 +1,50 @@
+@import '../../less/mixins.less';
+@import '../../less/color.less';
+.comment-list {
+  margin-top: 20rpx;
+  .title {
+    border: 0 solid #e5e5e5;
+    border-bottom-width: 1px;
+  }
+  .cell-list {
+    padding: 0;
+  }
+  .comment-item {
+    width: 100vw;
+    .flex-container(row, flex-start, flex-start);
+    .avatar {
+      flex-shrink: 0;
+      margin: 10px 0 0 30rpx;
+    }
+  }
+  .comment-content {
+    width: 82%;
+    box-sizing: border-box;
+  }
+  .rate-icon {
+    font-size: 12px !important;
+    margin-right: 6px !important;
+  }
+}
+.comment-pop {
+  .popup-mask {
+    z-index: 1000;
+  }
+  .popup-container {
+    z-index: 1001;
+  }
+  .rate-container {
+    padding: 10rpx 0 20rpx 0;
+    width: 90vw;
+    margin: 0 auto;
+  }
+  .textarea {
+    height: 180rpx;
+    width: 90vw;
+    margin: 0 auto 20rpx auto;
+    background-color: #eee;
+    padding: 10rpx;
+    border-radius: 10rpx;
+    font-size: 28rpx;
+  }
+}

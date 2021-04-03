@@ -1,0 +1,32 @@
+<style lang="less" src="./index.less"></style>
+<template>
+  <view class="tag {{item.type ? item.type : ''}}" @tap="onClick({{item}})">
+    <slot></slot>
+  </view>
+</template>
+<script>
+import wepy from 'wepy'
+
+export default class Tag extends wepy.component {
+  props = {
+    item: {
+      type: Object,
+      twoWay: true,
+      default: ''
+    }
+  }
+
+  data = {}
+
+  events = {}
+
+  methods = {
+    onClick(item) {
+      this.$emit('tagTap', item)
+    }
+  }
+
+  onLoad() {}
+}
+
+</script>

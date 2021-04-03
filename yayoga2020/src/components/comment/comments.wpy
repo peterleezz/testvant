@@ -1,0 +1,99 @@
+<style lang="less" src="./comments.less"></style>
+<template>
+  <view class="comment-list content font-14">
+    <view class="flex flex-between padding-10 title">
+      <view>用户评价</view>
+      <view @tap="trigger">写评论</view>
+    </view>
+    <repeat for="{{page.list}}" index="index" item="item" key="key">
+      <cell>
+        <view slot="title" class="comment-item">
+          <avatar :src="item.user.data.avatar" :item="item"></avatar>
+          <view class="padding-10 comment-content">
+            <view>{{ item.user.data.nickname }}</view>
+            <rate :title="item.content" :value="item.star" type="vertical" />
+            <view class="font-10 gray-txt">{{ item.create_time }}</view>
+          </view>
+        </view>
+        <view slot="detail" class="vote-count">{{ item.vote_count }}</view>
+      </cell>
+    </repeat>
+  </view>
+  <popup :show.sync="showPopup" position="bottom" id="0" maskHide="true" class="comment-pop" @pop.user="trigger">
+    <form slot="popContainer" @submit="submit">
+      <view class="flex font-14 padding-10">快来发表一下您的看法吧</view>
+      <rate1 title="评分" :value.sync="star" />
+      <textarea fixed class="textarea" maxlength="200" value="{{ config.value }}" placeholder="请给个好评吧" name="content"></textarea>
+      <button class="btn btn-large btn-sci" formType="submit">发表评论</button>
+    </form>
+  </popup>
+  <loadmore :page.sync="page" />
+  <placeholder :show.sync="isPageEmpty" message="暂无数据" />
+</template>
+<script>
+import wepy from 'wepy'
+import popup from '@/components/popup/index'
+import cell from '@/components/cell/index'
+import rate from '@/components/rate/index'
+import avatar from '@/components/avatar/index'
+import comment from '@/api/comment'
+import placeholder from '@/components/common/placeholder'
+import loadmore from '@/components/loadmore/index'
+import pagination from '@/mixins/pagination'
+import Tips from '@/utils/Tips'
+export default class Comments extends wepy.component {
+  props = {
+    type: {
+      type: String,
+      default: ''
+    },
+    id: {
+      type: String,
+      default: ''
+    }
+  }
+  mixins = [pagination]
+  components = {
+    cell,
+    rate,
+    rate1: rate,
+    avatar,
+    popup,
+    loadmore,
+    placeholder
+  }
+
+  data = {
+    showPopup: false,
+    star: 5
+  }
+  events = {
+    loadcomment: async (type, id) => {
+      this.type = type
+      this.id = id
+      this.page = comment.page({ type: this.type, obj_id: this.id, include: 'commentable,user' })
+      await this.next()
+      this.$apply()
+    }
+  }
+
+  methods = {
+    trigger: e => {
+      this.showPopup = !this.showPopup
+    },
+
+    submit: async e => {
+      if (e.detail.value.content !== '') {
+        this.showPopup = !this.showPopup
+        try {
+          await comment.add({ type: this.type, obj_id: this.id, content: e.detail.value.content, star: this.star })
+          Tips.success('评论成功')
+          this.reload()
+        } catch (err) {
+          Tips.error(err)
+        }
+      }
+    }
+  }
+}
+</script>

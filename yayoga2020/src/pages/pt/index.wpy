@@ -1,0 +1,116 @@
+<style>
+.card {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  transition: 0.3s;
+  width: 90%;
+  border-radius: 5px;
+}
+
+</style>
+<template>
+  <view class="sci-content content">
+    <repeat for="{{pts}}">
+      <view class="card">
+        <cell :title="item.name " :item="item" :arrow="true">
+          <view slot="title" class="font-12">
+            <view class="panel padding-10">
+              <view class="padding-10">
+                今日可预约时间：
+              </view>
+              <view class="list list-last-child">
+                <block wx:for="{{item.fields}}" wx:for-item="item1">
+                  <Tags :item.sync="item1" class="margin-leftAndRight-20">{{item1.time}}</Tags>
+                </block>
+              </view>
+            </view>
+            <view class="panel padding-10">
+              <view class="padding-10">
+                可预约私教课程：
+              </view>
+              <view class="list list-last-child">
+                <view wx:for="{{contracts}}" wx:for-item="item2">
+                  {{item2.name}}（有效期：{{item2.end_time}})
+                </view>
+              </view>
+            </view>
+          </view>
+        </cell>
+      </view>
+    </repeat>
+    <placeholder :show.sync="show" message="未找到您的私教信息"></placeholder>
+  </view>
+  <auth active="true"></auth>
+</template>
+<script>
+import wepy from 'wepy'
+import appoint from '@/api/appoint'
+import placeholder from '@/components/common/placeholder'
+import loadmore from '@/components/loadmore/index'
+import pagination from '@/mixins/pagination'
+import dateformat from '@/utils/Date'
+import Tips from '@/utils/Tips'
+import Cache from '@/utils/Cache'
+import cell from '@/components/cell/index'
+import Event from '../../utils/Event'
+import Tags from '@/components/tag/index'
+import ptcontract from '@/api/ptcontract'
+import auth from '@/components/auth/index'
+export default class ptindex extends wepy.page {
+  config = {
+    navigationBarTitleText: '私教预约',
+    enablePullDownRefresh: true
+  }
+
+  mixins = [pagination]
+
+  components = {
+    loadmore,
+    cell,
+    Tags,
+    auth,
+    placeholder
+  }
+
+  data = {
+    pts: [],
+    contracts: [],
+
+  }
+  events = {
+    authed: async () => {
+      this.getPtContracts()
+    },
+    cellTap: item => {
+      this.$navigate('add?id=' + item.id + "&name=" + item.name)
+    },
+  }
+  computed = {
+    show: () => this.contracts.length === 0
+  }
+
+
+  onPullDownRefresh() {
+    this.getPtContracts()
+    wepy.stopPullDownRefresh()
+  }
+
+  async getPtContracts() {
+    try {
+      let { data } = await ptcontract.index({ include: 'teachers' })
+      this.contracts = data
+      let teachers = data.map(e => e.teachers.data[0])
+      let sets = [...new Set(teachers)]
+      this.pts = sets
+      this.pts.forEach(e => e.fields.forEach(ee => ee.type = ee.isAppointed ? "disabled" : "primary empty"))
+      this.$apply()
+    } catch (err) {
+      Tips.error(err)
+    }
+  }
+
+  onLoad() {
+    this.getPtContracts()
+  }
+}
+
+</script>

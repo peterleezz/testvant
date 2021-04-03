@@ -1,0 +1,103 @@
+<script>
+import wepy from 'wepy'
+import Lang from '../utils/Lang'
+import Tips from '../utils/Tips'
+import v from '../utils/Validate'
+import form from '@/api/form'
+export default class input extends wepy.mixin {
+  data = {
+    id: 0,
+    input: {}
+  }
+  // 卸载页面
+  onUnload() {
+    this.input = {}
+  }
+  // 判断字符串是否为空
+  isEmpty(str) {
+    return Lang.isEmpty(str)
+  }
+  // 判断字符串是否不为空
+  isNotEmpty(str) {
+    return !Lang.isEmpty(str)
+  }
+  // 提示错误（调用FormTips）
+  tips(message) {
+    Tips.error(message)
+  }
+  // 校验
+  check(rules) {
+    for (let rule of rules) {
+      const value = rule.value
+      if (rule.method != 'noDuplicate' && Lang.isArray(value)) {
+        // 数组校验每个值
+        for (let innerValue of value) {
+          const isValid = this.execCheck(rule, innerValue)
+          if (!isValid) {
+            return false
+          }
+        }
+      } else {
+        // 单元素直接校验
+        const isValid = this.execCheck(rule, value)
+        if (!isValid) {
+          return false
+        }
+      }
+    }
+    return true
+  }
+  execCheck(rule, value) {
+    const method = v[rule.method].bind(v)
+    const isValid = method(value, rule.param)
+    if (!isValid) {
+      this.tips(rule.message)
+      return false
+    }
+    return true
+  }
+  onInput(e) {
+    const fieldName = e.currentTarget.id
+    this.input[fieldName] = e.detail.value
+  }
+
+  getEditInfo(info) {
+    let obj = this.data
+    Object.keys(obj).forEach(function(key) {
+      if (typeof obj[key] == 'object') {
+        let name = obj[key].name
+        Object.keys(info).forEach(function(k) {
+          if (k == name) {
+            if (obj[key].type == 'select') {
+              obj[key].list.forEach((e, index) => {
+                if (e.id == info[k]) obj[key].index = index
+              })
+            } else {
+              obj[key].value = info[k]
+            }
+          }
+        })
+      }
+    })
+  }
+
+  methods = {
+    // 处理输入事件
+    input(e) {
+      const fieldName = e.currentTarget.id
+      this.input[fieldName] = e.detail.value
+    },
+    // 处理单选事件
+    radio(e) {
+      const fieldName = e.currentTarget.id
+      this.input[fieldName] = e.detail.value
+    },
+    async submit(e) {
+      try {
+        let form_id = e.detail.formId
+        if (form_id) await form.uploadFormId(form_id)
+      } catch (error) {}
+    }
+  }
+}
+</script>

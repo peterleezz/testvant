@@ -1,0 +1,20 @@
+.flex-container(@flex-direction: row, @justify-content: center, @align-items: center, @flex-wrap: nowrap) {
+  display: -webkit-box; // Chrome 4+, Safari 3.1, iOS Safari 3.2+  
+  display: -webkit-flex; // Chrome 21+, Safari 6.1+, iOS Safari 7+, Opera 15/16
+  display: flex; // Chrome 29+, Firefox 22+, IE 11+, Opera 12.1/17/18, Android 4.4+
+  -webkit-flex-direction: @flex-direction;
+  flex-direction: @flex-direction;
+  -webkit-justify-content: @justify-content;
+  justify-content: @justify-content;
+  -webkit-align-items: @align-items;
+  align-items: @align-items;
+  flex-wrap: @flex-wrap;
+}
+
+.flex-item(@flex-shrink: 1, @align-self: auto, @order: 1) {
+  -webkit-flex-shrink: @flex-shrink;
+  flex-shrink: @flex-shrink;
+  align-self: @align-self;
+  -webkit-box-ordinal-group: @order;
+  order: @order;
+}

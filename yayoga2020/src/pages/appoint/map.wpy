@@ -1,0 +1,51 @@
+<style>
+map {
+	height: 100vh;
+	width: 100vw;
+}
+</style>
+<template>
+	<map latitude="{{location.latitude}}" longitude="{{location.longitude}}" show-location markers="{{markers}}" @callouttap="callouttap"></map>
+</template>
+
+<script>
+import wepy from 'wepy'
+import Cache from '@/utils/Cache'
+export default class ClubMap extends wepy.page {
+	config = { 
+		navigationBarTitleText: '场馆'
+	}
+	components = {
+	}
+
+	data = {
+		location: {},
+		markers: []
+	}
+
+	computed = {
+	}
+
+	methods = {
+		callouttap: e =>{
+			wepy.navigateTo({ url:`./index?clubId=${e.detail.markerId}` })
+		} 
+	} 
+	 
+	async onLoad() {
+	 	this.location = await wepy.getLocation({type:'gcj02'})
+	 	console.log(this.location)
+		let ret = await Cache.clubs()
+		this.markers = ret.map(item => {
+			return {
+				id: item.id,
+				latitude: item.mars_lat,
+				longitude: item.mars_lon,
+				callout: {content:`${item.name}\r\n地址:${item.location}`, color:'#ffffff', fontSize:10, borderRadius:10, bgColor:'#79a9ac', padding:10, boxShadow:'5rpx 5rpx 10rpx #000', display:'BYCLICK'}
+			}
+		})
+		console.log(this.markers)
+		this.$apply()
+	}
+}
+</script>

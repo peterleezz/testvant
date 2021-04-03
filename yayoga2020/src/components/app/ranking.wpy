@@ -1,0 +1,71 @@
+<style lang="less">
+.color-txt {
+  color: #b6203b;
+}
+
+.ellipsis-l0 {
+  max-width: 100px;
+}
+</style>
+<template>
+  <view class="margin-top-20 content">
+    <cell title="拆礼包排行榜" />
+    <view class="padding-0-30 flex flex-start">
+      <avatar size="small" :src.sync="headpic" />
+      <text class="font-14 color-yellow">{{ profile.nickname }}伽人排名第{{ list.meta.my_pos }}名</text>
+    </view>
+    <repeat for="{{list.data}}" index="index">
+      <view class="flex flex-between padding-15">
+        <text class="color-{{index<3?'yellow':''}} font-bold">NO.{{ index + 1 }}</text>
+        <view class="flex">
+          <avatar1 size="small" :src="item.xcxuser.data.thumbnail" />
+          <view>
+            <view class="ellipsis-l0 font-bold font-14">{{ item.xcxuser.data.nickname }}</view>
+            <view class="font-13">
+              已获好友拆礼包
+              <text class="color-txt">{{ item.vote_count }}</text>
+              个
+            </view>
+          </view>
+        </view>
+        <text class="font-13 color-txt" @tap="chai({{item}})">帮Ta拆礼包</text>
+      </view>
+    </repeat>
+  </view>
+  <image class="content padding-10 margin-top-20" mode="widthFix" src="http://cdn.50yoga.cn/pics/source/inyoga/fouryear/explain.png?a=2" />
+</template>
+<script>
+import wepy from 'wepy'
+import cell from '@/components/cell/index'
+import avatar from '@/components/avatar/index'
+export default class Rank extends wepy.component {
+  components = {
+    cell,
+    avatar,
+    avatar1: avatar
+  }
+  computed = {
+    headpic() {
+      return this.profile.thumbnail
+    }
+  }
+  props = {
+    profile: {
+      type: Object,
+      default: {}
+    },
+    list: {
+      type: Array,
+      default: []
+    }
+  }
+
+  methods = {
+    chai: e => {
+      this.$emit('chai', e)
+    }
+  }
+
+  onLoad() {}
+}
+</script>

@@ -1,0 +1,93 @@
+<style lang="less">
+.card {
+  display: block;
+  position: relative;
+  width: 94vw;
+  height: 360rpx;
+  color: #fff;
+  text-shadow: 2px 2px 2px #000;
+  margin-top: 20rpx;
+  box-shadow: 0 0 10rpx 0 rgba(0, 0, 0, 0.1);
+  .name {
+    position: absolute;
+    left: 20rpx;
+    top: 20rpx;
+    font-size: 30rpx;
+  }
+  .desc {
+    position: absolute;
+    left: 20rpx;
+    bottom: 20rpx;
+    font-size: 30rpx;
+  }
+  .op {
+    position: absolute;
+    right: 20rpx;
+    bottom: 20rpx;
+    text-shadow: 0px 0px 0px #fff;
+    navigator {
+      display: inline-block;
+    }
+  }
+}
+</style>
+<template>
+  <view class="sci-content content"> 
+    <repeat for="{{page.list}}">
+    <cell :title="item.schedule.data.course.data.name " >
+        <view slot="detail" class="font-12">
+           {{ item.schedule.data.start}}
+        </view>
+      </cell>
+
+      
+    </repeat>
+    <loadmore :page.sync="page" />
+    <placeholder :show.sync="isPageEmpty" message="暂无数据" />
+  </view>
+</template>
+<script>
+import wepy from 'wepy'
+import appoint from '@/api/appoint'
+import placeholder from '@/components/common/placeholder'
+import loadmore from '@/components/loadmore/index'
+import pagination from '@/mixins/pagination'
+import dateformat from '@/utils/Date'
+import Tips from '@/utils/Tips'
+import cell from '@/components/cell/index'
+export default class appointlist1 extends wepy.page {
+  config = {
+    navigationBarTitleText: '约课记录',
+    enablePullDownRefresh: true
+  }
+
+  mixins = [pagination]
+
+  components = {
+    loadmore,
+    cell,
+    placeholder
+  }
+
+  data = {
+    now: dateformat.format(new Date(), 'yyyy-MM-dd hh:mm:ss')
+  }
+
+  methods = {
+    cancel: async (id, index) => {
+      Tips.confirm('确认取消本次预约？').then(async success => {
+        await appoint.del(id)
+        Tips.success('取消成功')
+        this.page.list.splice(index, 1)
+        this.$apply()
+      })
+    }
+  }
+
+  async onLoad(options) {
+    this.page = appoint.page({ order: 'desc', include: 'schedule.room,schedule.club', ...options })
+    await this.next()
+    this.$apply()
+  }
+}
+</script>

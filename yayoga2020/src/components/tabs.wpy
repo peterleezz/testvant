@@ -1,0 +1,75 @@
+<style>
+.tabs {
+  border-top: 1rpx solid #b2b2b2;
+  height: 72rpx;
+  justify-content: space-around;
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  color: #333;
+}
+.tab {
+  height: 100%;
+  min-width: 120rpx;
+  flex-direction: column;
+  justify-content: space-between;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+.tab_name {
+  height: 100%;
+  line-height: 72rpx;
+  font-size: 30rpx;
+  text-align: center;
+}
+.tab_line {
+  height: 6rpx;
+  width: 100%;
+  background-color: #8ab6b7;
+  position: absolute;
+  bottom: 0;
+}
+.no_line {
+  display: none;
+}
+.tab_active {
+  color: #8ab6b7;
+}
+</style>
+<template>
+  <view class="tabs">
+    <block wx:for="{{tabArr}}" wx:key="{{index}}">
+      <view class="tab" id="{{index}}" @tap="tabChange({{index}})">
+        <view class="tab_name {{activeIndex==index?'tab_active':''}}">{{item}}</view>
+        <view class="tab_line {{activeIndex==index?'':'no_line'}}"></view>
+      </view>
+    </block>
+  </view>
+</template>
+<script>
+  import wepy from 'wepy'
+
+  export default class Tabs extends wepy.component {
+    props = {
+      tabArr: {
+        type: Array,
+        default: ['tab1','tab2'],
+        twoWay: true
+      },
+      activeIndex: {
+        type: Number,
+        default: 0,
+        twoWay: true
+      },
+    }
+    
+    watch = {
+      
+    }
+
+    methods = {
+      tabChange: (index,e) => this.activeIndex = index
+    }
+  }
+</script>

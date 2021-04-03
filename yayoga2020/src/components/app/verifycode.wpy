@@ -1,0 +1,100 @@
+<style lang="less">
+@import '../../less/layout';
+
+.col {
+  display: table-cell !important;
+}
+</style>
+<template>
+  <view class="layout ">
+    <view class="col col-16">
+      <input-verify :config="verify"></input-verify>
+    </view>
+    <view class="col col-8">
+      <button class="btn btn-success btn-small btn-empty" @tap="getVerifyCode">
+        {{ verify_display }}
+      </button>
+    </view>
+  </view>
+</template>
+<script>
+import wepy from 'wepy'
+import input from '@/components/input/index'
+import CountDown from '@/mixins/countdown'
+import dateformt from '@/utils/Date'
+import util from '@/api/util'
+import form from '../../mixins/input'
+import Tips from '@/utils/Tips'
+export default class verifycode extends wepy.component {
+  props = {
+    formdata: {
+      type: Object,
+      default: {},
+      twoWay: true
+    }
+  }
+  components = {
+    'input-verify': input
+  }
+  mixins = [CountDown, form]
+  events = {
+    onInput: (e, v) => {
+      if (v.name == 'verify_code') this.formdata.verify_code = e
+    }
+  }
+  watch = {
+    totalSeconds: (nv, ov) => {
+      if (nv === 0) {
+        this.verify_display = '获取验证码'
+        this.$apply()
+      } else {
+        this.verify_display = `${nv}s后获取`
+        this.$apply()
+      }
+    }
+  }
+  data = {
+    verify_display: '获取验证码',
+    verify: {
+      label: '验证码',
+      name: 'verify_code',
+      inputType: 'number',
+      adjust: true,
+      placeholder: '请输入验证码'
+    }
+  }
+  validate() {
+    const rules1 = [
+      {
+        value: this.formdata.phone,
+        method: 'required',
+        message: '电话不能为空'
+      },
+      {
+        value: this.formdata.phone,
+        method: 'tel',
+        message: '电话格式错误'
+      }
+    ]
+    console.log(this.formdata)
+    return this.check(rules1)
+  }
+  methods = {
+    getVerifyCode: async e => {
+      if (!this.validate(1)) {
+        return
+      }
+      try {
+        await util.verify({
+          phone: this.formdata.phone
+        })
+        this.countDown(dateformt.addSeconds(120))
+        Tips.success('验证码已发送')
+        this.$apply()
+      } catch (e) {
+        Tips.error(e)
+      }
+    }
+  }
+}
+</script>

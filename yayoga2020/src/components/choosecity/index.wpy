@@ -1,0 +1,39 @@
+<style lang="less">
+.city {
+  font-size: 0.8rem;
+}
+
+.icon-down {
+  padding-left: 10rpx;
+}
+
+</style>
+<template>
+  <picker mode="region" bindchange="bindRegionChange" value="{{region}}" custom-item="{{customItem}}" class="city">
+    <view class="flex">{{ region[1] }} <text class="iconfont icon-down-arrow"></text></view>
+  </picker>
+</template>
+<script>
+import wepy from 'wepy'
+import Icon from '@/components/icon/index'
+export default class city extends wepy.component {
+  components = {
+    icon: Icon
+  }
+
+  data = {
+    region: ['', '全部', ''],
+    customItem: '全部',
+    city: ''
+  }
+
+  methods = {
+    bindRegionChange: e => {
+      this.region = e.detail.value
+      this.city = this.region[1]
+      this.$emit('cityChange', this.city)
+    }
+  }
+}
+
+</script>

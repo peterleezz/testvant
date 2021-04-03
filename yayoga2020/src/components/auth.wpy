@@ -1,0 +1,119 @@
+<style lang="less">
+.mask {
+  @border-color: #ededed;
+  background-color:rgba(0,0,0,0.6);
+  .mask-modal {
+    background-color: #fff;
+    border-radius: 10rpx;
+    margin: 25vh 72rpx 0 72rpx;
+    .mask-title {
+      font-size: 36rpx;
+      color: #000;
+      line-height: 36rpx;
+      text-align: center;
+      padding-top: 40rpx;
+      padding-bottom: 20rpx;
+      border-bottom: 1rpx solid @border-color;
+    }
+    .mask-content {
+      padding: 0 40rpx;
+      flex-direction: column;
+      .img {
+        height: 60rpx;
+        width: 60rpx;
+        margin-top: 20rpx;
+      }
+      .tip-content {
+        width: 100%;
+        color: #000;
+        border-bottom: 1rpx solid @border-color;
+        font-size: 28rpx;
+        line-height: 28rpx;
+        padding: 20rpx 0;
+      }
+      .permission {
+        width: 100%;
+        padding-top: 16rpx;
+        padding-bottom: 60rpx;
+        .point {
+          background-color: #888;
+          height: 12rpx;
+          width: 12rpx;
+          border-radius: 50%;
+          margin: 0 6rpx;
+        }
+        .permission-desc {
+          font-size: 24rpx;
+          line-height: 24rpx;
+          color: #999;
+        }
+      }
+    }
+    .mask-btn-group {
+      border-top: 1rpx solid @border-color;
+      button {
+        margin: 0;
+        padding: 0;
+        border-radius: 0;
+        width: 50%;
+        background-color: #fff;
+        font-size: 36rpx;
+      }
+      .ok-btn {
+        color: #0bb20c;
+        border-bottom-left-radius: 10rpx;
+        border-right: 1rpx solid @border-color;
+      }
+      .cancel-btn {
+        color: #3b3b3b;
+        border-bottom-right-radius: 10rpx;
+      }
+      .only-btn {
+        width: 100%;
+        border-bottom-left-radius: 10rpx;
+        border-bottom-right-radius: 10rpx;
+        border: none;
+      }
+    }
+  }
+}
+</style>
+<template>
+  <view hidden="{{hideMask}}" class="mask">
+    <view class="mask-modal">
+      <view class="mask-title">提示</view>
+      <view class="mask-content flex">
+        <view class="tip-content">允许获得地址位置</view>
+        <view class="permission flex">
+          <view class="point"></view>
+          <view class="permission-desc">请点击允许，去设置获取地理位置</view>
+        </view>
+      </view>
+      <view class="mask-btn-group flex">
+        <button class="ok-btn only-btn" openType="openSetting" @opensetting="bindopensetting">允许</button>
+      </view>
+    </view>
+  </view>
+</template>
+<script>
+import wepy from 'wepy'
+
+export default class Auth extends wepy.component {
+  props = {
+    hideMask: {
+      type: Boolean,
+      default: true,
+      twoWay: true
+    }
+  }
+
+  methods = {
+    bindopensetting: e => {
+      this.hideMask = false
+    }
+  }
+
+  onLoad() {
+  }
+}
+</script>

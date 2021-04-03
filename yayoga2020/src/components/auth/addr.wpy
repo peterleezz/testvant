@@ -1,0 +1,70 @@
+<style lang="less">
+@import '../../less/mixins.less';
+
+.logo {
+  text-align: center;
+  .flex-container;
+  width: 500rpx;
+}
+
+.margin-top20 {
+  margin-top: 20px;
+}
+</style>
+<template>
+  <popup :show.sync="show" position="center" id="1" class="auth-pop">
+    <block slot="popContainer">
+      <view class="logo">
+        <Avatar :src="authLogo" size="large" shape="circle" />
+      </view>
+      <view class="padding-10">
+        <view>
+          <view class="font-16 color-content">{{ appName }}申请获得你的{{ msg }}</view>
+          <view class="font-16 color-content">请点击允许</view>
+          <button class="btn btn-sci margin-top20" @tap="close">
+            允许
+          </button>
+        </view>
+      </view>
+    </block>
+  </popup>
+</template>
+<script>
+import wepy from 'wepy'
+import { authLogo, appName } from '@/utils/Config'
+import Avatar from '@/components/avatar/index'
+import popup from '@/components/popup/index'
+
+export default class Auth extends wepy.component {
+  props = {
+    msg: {
+      type: String,
+      default: '地址信息'
+    }
+  }
+  data = {
+    show: false,
+    appName,
+    authLogo
+  }
+
+  components = {
+    popup,
+    Avatar
+  }
+  methods = {
+    close: async e => {
+      let res = await wepy.openSetting()
+      this.$emit('handleOpenSetting', res)
+    }
+  }
+  events = {
+    activeOpenSetting: e => {
+      this.show = true
+    },
+    hideOpenSetting: e => {
+      this.show = false
+    }
+  }
+}
+</script>

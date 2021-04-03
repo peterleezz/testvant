@@ -1,0 +1,302 @@
+<style lang="less">
+@import '../../less/mixins.less';
+@import '../../less/color.less';
+@active: #95ea6b;
+.sci-content {
+  height: 100vh;
+  width: 100vw;
+}
+.chat-list {
+  height: 100%;
+  width: 100%;
+  padding: 0 20rpx 110rpx 20rpx;
+  box-sizing: border-box;
+}
+
+.chat-item {
+  padding-bottom: 30rpx;
+  .flex-container(row, flex-start, flex-start);
+}
+
+.avatar {
+  display: block;
+  height: 80rpx;
+  width: 80rpx;
+  background-color: @disabled;
+  border-radius: 10rpx;
+  overflow: hidden;
+}
+
+.chat-content {
+  position: relative;
+  border-radius: 10rpx;
+  padding: 20rpx 10rpx;
+  font-size: 32rpx;
+  line-height: 42rpx;
+  max-width: 500rpx;
+  background-color: #fff;
+  word-break: break-all;
+}
+
+.triangle {
+  position: absolute;
+  height: 18rpx;
+  width: 18rpx;
+  transform: rotate(45deg);
+  background-color: #fff;
+  top: 30rpx;
+}
+
+.self {
+  .flex-container(row, flex-end, flex-start);
+
+  .chat-content {
+    background-color: @active;
+  }
+
+  .triangle {
+    background-color: @active;
+    right: -10rpx;
+  }
+
+  .avatar {
+    margin-left: 20rpx;
+  }
+}
+
+.target {
+  .triangle {
+    left: -10rpx;
+  }
+
+  .avatar {
+    margin-right: 20rpx;
+  }
+}
+
+.reply-view {
+  height: 110rpx;
+  background-color: #f6f6f6;
+  border-top: 1rpx solid #ddd;
+}
+
+.reply-input {
+  height: 72rpx;
+  width: 580rpx;
+  padding: 0 10rpx;
+  font-size: 30rpx;
+  line-height: 72rpx;
+  background-color: #fff;
+  border-radius: 6rpx;
+  margin-right: 14rpx;
+}
+
+.send-btn {
+  width: 100rpx;
+  height: 72rpx;
+  line-height: 72rpx;
+  padding: 0;
+  margin: 0;
+  font-size: 30rpx;
+  text-align: center;
+  border-radius: 10rpx;
+  background-color: #abadbc;
+}
+#hideview {
+  position: fixed;
+  z-index: -999;
+}
+</style>
+<template>
+  <view class="sci-content">
+    <view id="hideview">
+      <repeat for="{{hideList}}">
+        <view class="chat-item {{item.classname}}">
+          <image wx:if="{{item.classname != 'self'}}" class="avatar" src=""></image>
+          <view class="chat-content">
+            <view>{{ item.content }}</view>
+            <view class="triangle"></view>
+          </view>
+          <open-data wx:if="{{item.classname=='self'}}" class="avatar" type="userAvatarUrl"></open-data>
+        </view>
+      </repeat>
+    </view>
+    <scroll-view @scroll="bindScroll" scroll-y scroll-top="{{scrollTop}}" class="chat-list">
+      <view style="height: 20rpx;"></view>
+      <repeat for="{{list}}">
+        <view class="chat-item {{item.classname}}">
+          <image wx:if="{{item.classname != 'self'}}" class="avatar" src="http://www.50yoga.cn/Public/Home/images/inyoga.jpg"></image>
+          <view class="chat-content">
+            <view>{{ item.content }}</view>
+          </view>
+          <open-data wx:if="{{item.classname == 'self'}}" class="avatar" type="userAvatarUrl"></open-data>
+        </view>
+      </repeat>
+    </scroll-view>
+    <form @submit="onSubmit" report-submit>
+      <view class="fixed-bottom reply-view flex">
+        <input
+          class="reply-input"
+          name="content"
+          cursor-spacing="10"
+          placeholder="{{placeholder}}"
+          placeholder-class="placeholder"
+          value="{{content}}"
+          @input="bindInput"
+          @focus="bindFocus"
+          @blur="bindBlur"
+        />
+        <button class="send-btn" form-type="submit">发送</button>
+      </view>
+    </form>
+  </view>
+</template>
+<script>
+import wepy from 'wepy'
+import conversation from '@/api/conversation'
+import form from '@/api/form'
+import Tips from '@/utils/Tips'
+let page = 1
+let pagination = {}
+let loadmore = true
+export default class Chat extends wepy.component {
+  components = {}
+
+  data = {
+    id: 0,
+    scrollTop: 0,
+    target: {},
+    list: [],
+    hideList: [],
+    content: ''
+  }
+
+  methods = {
+    bindScroll: ({ detail }) => {
+      if (!Tips.isLoading && loadmore && detail.scrollTop < 10) {
+        wx.createSelectorQuery()
+          .select('#hideview')
+          .boundingClientRect()
+          .exec(res => {
+            Tips.loading()
+            setTimeout(() => {
+              this.list = this.hideList.concat(this.list)
+              this.scrollTop = res[0].height
+              this.$apply()
+              Tips.loaded()
+              if (pagination.current_page === pagination.total_pages) {
+                loadmore = false
+              } else {
+                this.getNextPage()
+              }
+            }, 1000)
+          })
+      }
+    },
+    bindFocus: e => {
+      this.scrollTop = 99999
+    },
+    bindBlur: e => {
+      this.scrollTop -= 0.01
+    },
+    bindInput: e => {
+      this.content = e.detail.value
+    },
+    onSubmit: async e => {
+      form.uploadFormId(e.detail.formId)
+      try {
+        let newid = await conversation.add({ content: this.content, tid: this.id })
+        if ((this.list.length > 0 && this.list[this.list.length - 1].id == newid - 1) || this.list.length == 0) {
+          this.list.push({ classname: 'self', content: this.content, id: newid })
+        } else {
+          let id = 0
+          if (this.list.length) {
+            id = this.list[this.list.length - 1].id
+          }
+          let { data } = await conversation.index({ id, tid: this.id })
+          if (data.length) {
+            this.list = this.list.concat(data.reverse())
+            this.scrollTop += 100
+            this.$apply()
+          }
+        }
+
+        this.scrollTop = 999999
+        this.content = ''
+        this.$apply()
+      } catch (err) {
+        Tips.error(err)
+      }
+    }
+  }
+
+  async getNextPage() {
+    // 通过请求获取下一页
+    try {
+      page++
+      let data = await this.getConversations()
+      this.hideList = data.reverse()
+      this.$apply()
+    } catch (err) {
+      Tips.error(err)
+    }
+  }
+
+  async getFirstPage() {
+    try {
+      // 第一页通过请求获得
+      let data = await this.getConversations()
+      this.list = data.reverse()
+      this.scrollTop = 999
+      this.$apply()
+      if (pagination.current_page != pagination.total_pages) {
+        Tips.setLoading()
+        this.getNextPage()
+      }
+    } catch (err) {
+      Tips.error()
+    }
+  }
+
+  async getConversations() {
+    try {
+      let { data, meta } = await conversation.index({ tid: this.id, page })
+      pagination = meta.pagination
+      return data
+    } catch (err) {
+      Tips.error()
+    }
+  }
+
+  async getNewMsg() {
+    let id = 0
+    this.timer = setTimeout(async () => {
+      if (this.list.length) {
+        id = this.list[this.list.length - 1].id
+      }
+      Tips.setLoading()
+      let { data } = await conversation.index({ id, tid: this.id })
+      if (data.length) {
+        this.list = this.list.concat(data.reverse())
+        this.scrollTop += 100
+        this.$apply()
+      }
+      this.getNewMsg()
+    }, 10000)
+  }
+
+  onUnload() {
+    clearTimeout(this.timer)
+  }
+
+  async getTarget(id) {
+    this.id = id
+    let { data } = await conversation.target(this.id)
+    // data.avatar = ''
+    this.target = data
+    wepy.setNavigationBarTitle({ title: this.target.name })
+    this.getFirstPage()
+    this.getNewMsg()
+  }
+}
+</script>

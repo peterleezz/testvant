@@ -1,0 +1,510 @@
+<style lang="less">
+
+.mask {
+  @border-color: #ededed;
+  background-color:rgba(0,0,0,0.6);
+  padding: 0;
+  .mask-modal {
+    background-color: #fff;
+    border-radius: 10rpx;
+    margin: 25vh 72rpx 0 72rpx;
+    .mask-title {
+      font-size: 36rpx;
+      color: #000;
+      line-height: 36rpx;
+      text-align: center;
+      padding-top: 40rpx;
+      padding-bottom: 20rpx;
+      border-bottom: 1rpx solid @border-color;
+    }
+    .mask-content {
+      padding: 0 40rpx;
+      flex-direction: column;
+      .img {
+        height: 60rpx;
+        width: 60rpx;
+        margin-top: 20rpx;
+      }
+      .tip-content {
+        width: 100%;
+        color: #000;
+        border-bottom: 1rpx solid @border-color;
+        font-size: 28rpx;
+        line-height: 28rpx;
+        padding: 20rpx 0;
+      }
+      .permission {
+        width: 100%;
+        padding-top: 16rpx;
+        padding-bottom: 60rpx;
+        .point {
+          background-color: #888;
+          height: 12rpx;
+          width: 12rpx;
+          border-radius: 50%;
+          margin: 0 6rpx;
+        }
+        .permission-desc {
+          font-size: 24rpx;
+          line-height: 24rpx;
+          color: #999;
+        }
+      }
+    }
+    .mask-btn-group {
+      justify-content: center;
+      padding-bottom:20rpx;
+
+      button {
+        margin: 0;
+        padding: 0;
+        border-radius: 0;
+        width: 50rpx;
+        background-color: #fff;
+        font-size: 36rpx;
+      }
+      .manual-btn {
+        width: 200rpx;
+        height: 80rpx;
+        line-height: 80rpx;
+        border-radius: 10rpx;
+        background: rgb(197, 197, 197);
+        color: #fff;
+        margin-right: 20rpx;
+      }
+
+      .cancel-btn {
+        color: #3b3b3b;
+        border-bottom-right-radius: 10rpx;
+      }
+      .only-btn {
+        width: 200rpx;
+        height: 80rpx;
+        line-height: 80rpx;
+        border-radius: 10rpx;
+        background: #79a9ac;
+        color: #fff;
+      }
+    }
+  }
+}
+
+
+.login-flex{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.light_{
+  background-color: rgba(0,0,0,.35);
+  top: 0;
+}
+.login-flex-column{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+.login-body{
+  position: fixed;
+  z-index: 999;
+  width: 100%;
+  box-sizing:border-box;
+  flex-wrap: wrap;
+  height: 100%;
+  width: 100%;
+  .login-body-main{
+    height: 100%;
+    width: 100%;
+    position: relative;
+    .login-close{
+      position: absolute ;
+      top: 78%;
+      left: 350rpx;
+      width: 54rpx;
+      height: 54rpx;
+      font-size: 54rpx;
+      color:#ffffff;
+    }
+    .login-main{
+      height: 560rpx;
+      width: 650rpx;
+      border-radius: 10rpx;
+      background-color: #fff;
+      .login-main-login{
+        width: 100%;
+        height: 140rpx;
+        font-size: 36rpx;
+        color: #323232;
+      }
+      .login-main-form{
+        width: 590rpx;
+        height: 216rpx;
+        .login-main-phone{
+          width: 590rpx;
+          height: 88rpx;
+          border-radius: 10rpx;
+          border: solid 2rpx #dbdbdb;
+          display: flex;
+          align-items: center;
+          .phone-pic{
+            margin:0 28rpx;
+            width: 30rpx;
+            height: 38rpx;
+            font-size: 44rpx;
+          }
+          .input{
+            height: 30rpx;
+            font-size: 28rpx;
+            width: 500rpx;
+            color: #8e8e8e;
+          }
+        }
+        .login-main-password{
+          margin-top: 40rpx;
+          width: 590rpx;
+          height: 88rpx;
+          border-radius: 10rpx;
+          border: solid 2rpx #dbdbdb;
+          display: flex;
+          align-items: center;
+          .input{
+            height: 30rpx;
+            font-size: 28rpx;
+            width: 330rpx;
+            color: #8e8e8e;
+          }
+          .icon-code{
+            margin:-4rpx 26rpx 0 30rpx;
+            font-size: 38rpx;
+            color:#686868;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+          .login-get-password{
+            width: 164rpx;
+            height: 46rpx;
+            font-size: 24rpx;
+            color:#ffffff;
+            background-color: #79a9ac;
+            border-radius: 10rpx;
+          }
+        }
+        .self-motion {
+          font-size: 32rpx;
+          color: #000;
+          padding: 20rpx 0;
+          text-align: center;
+        }
+      }
+      .login-main-submit{
+        width: 100%;
+        height: 204rpx;
+        .login-main-btn{
+          width: 590rpx;
+          height: 90rpx;
+          margin-top: 50rpx;
+          background-color: #79a9ac;
+          border-radius: 10rpx;
+          font-size: 36rpx;
+          color: #ffffff;
+        }
+      }
+    }
+  }
+}
+
+
+
+</style>
+<template>
+  <view hidden="{{!(auth=='1' || auth_phone=='1' || showloginmanual) || islogin}}" class="mask">
+
+    <view class="mask-modal"  hidden="{{auth!='1'}}">
+      <view class="mask-title">提示</view>
+      <view class="mask-content flex">
+        <image class="img" mode="aspectFill" src="http://cdn.50yoga.cn/pics/public/xcxmemberBackground/inyoga_logo.png"></image>
+        <view class="tip-content">瑜伽新人申请获得你的用户信息</view>
+        <view class="permission flex">
+          <view class="point"></view>
+          <view class="permission-desc">请点击允许，以获取更多资讯</view>
+        </view>
+      </view>
+      <view class="mask-btn-group flex">
+        <button class="ok-btn only-btn" openType="getUserInfo" @getuserinfo="getUserInfo">允许</button>
+      </view>
+    </view>
+
+    <view class="mask-modal"  hidden="{{auth_phone!='1' || auth=='1'}}">
+      <view class="mask-title">提示</view>
+      <view class="mask-content flex">
+        <image class="img" mode="aspectFill" src="http://cdn.50yoga.cn/pics/public/xcxmemberBackground/inyoga_logo.png"></image>
+        <view class="tip-content" style="margin-bottom:30rpx;text-align:center">使用微信手机号自动登录</view>
+      </view>
+      <view class="mask-btn-group flex">
+        <button class="ok-btn manual-btn"  @tap="manualBtn">手机登录</button>
+        <button class="ok-btn only-btn" openType="getPhoneNumber" @getphonenumber="getPhoneInfo">允许</button>
+      </view>
+    </view>
+
+    <view wx:if="{{showloginmanual}}" class="login-body login-flex light_" >
+      <view class="login-body-main login-flex-column">
+        <view class="login-main login-flex-column">
+          <form @submit="onSubmitForm">
+            <view class="login-main-login login-flex">欢迎登录</view>
+            <view class="login-main-form login-flex-space">
+              <view class="login-main-phone ">
+                <image class="phone-pic" src="http://piccdn.50yoga.cn/pics/source/inyoga/phone.png"></image>
+                <input name="phone" class="input" placeholder="请填写手机号码" @input="getPhone"/>
+              </view>
+              <view class="login-main-password ">
+                <view class="iconfont icon-code"></view>
+                <input name="verify_code" class="input" placeholder="请输入验证码"/>
+                <view hidden="{{is_getting}}" class="login-get-password login-flex" @tap="getVerifyCode">获取验证码</view>
+                <view hidden="{{!is_getting}}" class="login-get-password login-flex">{{second}}s后重发</view>
+              </view>
+              <view @tap="useweixin" class="self-motion">自动使用微信号码登录</view>
+            </view>
+            <view class="login-main-submit login-flex">
+              <button hover-class="none" form-type="submit" class="login-main-btn login-flex">登录</button>
+            </view>
+          </form>
+        </view>
+      </view>
+    </view>
+
+  </view>
+</template>
+<script>
+import wepy from 'wepy'
+import {countdown, checkPhone} from '@/utils/Utils'
+export default class Auth extends wepy.component {
+
+  props = {
+    auth:{
+      type: String,
+      default: '0',
+      twoWay: true
+    },
+
+    auth_phone:{
+      type: String,
+      default: '0',
+      twoWay: true
+    },
+    showloginmanual:{
+      type: Boolean,
+      default: false,
+      twoWay: true
+    },
+
+  }
+  computed = {
+
+  }
+
+  data = {
+    phone: null,
+    is_getting: false,
+    second: 120,
+    hideMask: true,
+    islogin: true,
+  }
+
+  watch = {
+    showloginmanual: (nv, ov) => {
+      if (nv) {
+        this.islogin = false
+        this.$apply()
+      }
+    },
+    auth_phone: (nv, ov) => {
+      if(nv=='1') {
+        this.islogin = false
+        this.$apply()
+      }
+    }
+  }
+
+  async loginByPhone(e) {
+    this.auth_phone="0"
+    let res = await wepy.login()
+    let data=e.detail
+    data.code=res.code
+    let {authSetting} = await wepy.getSetting()
+    if (authSetting['scope.userInfo']) {
+      let userInfo = await wepy.getUserInfo()
+      let avatar = userInfo.userInfo.avatarUrl
+      let nickname = userInfo.userInfo.nickName
+      data.avatar=avatar
+      data.nickname=nickname
+    }
+
+    try {
+      let ret = await this.$parent.$parent.request('POST', 'loginByPhone', data)
+      wepy.setStorageSync('access_token', ret.data.token)
+      this.$parent.$parent.getUid()
+      if (ret.data.token) {
+        console.log('login by phone...')
+        this.$emit('load')
+        this.islogin=true
+      }
+      this.hideMask=true
+    } catch (e) {
+      console.log(e)
+      wepy.showToast({
+        icon: 'none',
+        title: '自动登录失败，请手动登录'
+      })
+      this.showloginmanual=true
+      this.auth_phone="0"
+    }
+
+    this.$apply()
+
+  }
+
+  async login(e) {
+   try {
+    if (!checkPhone(e.detail.value.phone)) throw new Error('手机号码有误')
+      if (e.detail.value.verify_code == '') throw new Error('验证码不能为空')
+        let phone = e.detail.value.phone
+      let verify_code = e.detail.value.verify_code
+      let res = await wepy.login()
+      let data=e.detail.value
+      data.code=res.code
+      let {authSetting} = await wepy.getSetting()
+      if (authSetting['scope.userInfo']) {
+        let userInfo = await wepy.getUserInfo()
+        let avatar = userInfo.userInfo.avatarUrl
+        let nickname = userInfo.userInfo.nickName
+        data.avatar=avatar
+        data.nickname=nickname
+      }
+
+      let ret = await this.$parent.$parent.request('POST', 'login', data)
+      wepy.setStorageSync('access_token', ret.data.token)
+      if(ret.data.token)
+      {
+        console.log('login...')
+        this.auth_phone="0"
+        this.showloginmanual=false
+        this.$parent.$parent.getUid()
+        this.islogin=true
+        this.$emit('load')
+      }
+      this.$apply()
+      return ret.data.token
+
+    } catch (e) {
+      wepy.showToast({
+        icon: 'none',
+        title: e.message
+      })
+    }
+
+
+  }
+
+
+  async autologin() {
+    this.auth = '0'
+    let res = await wepy.login()
+    let userInfo = await wepy.getUserInfo()
+    let code = res.code
+    let avatar = userInfo.userInfo.avatarUrl
+    let nickname = userInfo.userInfo.nickName
+    let encryptedData = userInfo.encryptedData
+    let iv = userInfo.iv
+    let data = {code, avatar, nickname, iv, encryptedData}
+    try {
+      let ret = await this.$parent.$parent.request('POST', 'autologin', data, false)
+      wepy.setStorageSync('access_token', ret.data.token)
+      if(ret.data.token)
+      {
+        this.auth_phone="0"
+        console.log('auto login...')
+        this.$parent.$parent.getUid()
+        this.islogin=true
+        this.$emit('load')
+      } else {
+        this.auth_phone='1'
+      }
+      return ret.data.token
+    } catch(err) {
+      this.showloginmanual = true
+    }
+    this.$apply()
+  }
+  methods = {
+    getPhone: e => {
+      this.phone = e.detail.value
+    },
+    useweixin:e => {
+      this.showloginmanual = false
+      this.auth_phone = "1"
+    },
+    getVerifyCode: async e => {
+      try {
+        if (!checkPhone(this.phone)) throw new Error('手机号码有误')
+          let res = await this.$parent.$parent.request('POST', 'api/common/code', {
+            phone: this.phone
+          })
+        wepy.showToast({ title: '验证码已发送' })
+        this.is_getting = true
+        countdown(this, 120)
+        this.$apply()
+      } catch (e) {
+        wepy.showToast({
+          icon: 'none',
+          title: e.message
+        })
+      }
+    },
+
+    onSubmitForm: async e => {
+      this.login(e)
+      this.$apply()
+    },
+
+    manualBtn: e => {
+      this.showloginmanual=true
+      this.auth_phone="0"
+
+    },
+
+    getPhoneInfo: async e => {
+      if (e.detail.errMsg != 'getPhoneNumber:ok') {
+        this.showloginmanual=true
+        this.auth_phone="0"
+        return
+      }
+      this.loginByPhone(e)
+      this.$apply()
+    },
+    getUserInfo: async e => {
+      if (e.detail.errMsg != 'getUserInfo:ok') {
+        return
+      }
+      this.autologin()
+      this.$apply()
+    }
+  }
+
+  async onLoad() {
+    let token = wepy.getStorageSync('access_token')
+    if (!token) {
+      let {authSetting} = await wepy.getSetting()
+      if (authSetting['scope.userInfo'] && !this.showloginmanual) {
+        this.autologin()
+      }
+      this.islogin = false
+    } else {
+      this.islogin=true
+      this.$emit('load')
+    }
+    this.$apply()
+  }
+}
+</script>

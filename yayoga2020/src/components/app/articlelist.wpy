@@ -1,0 +1,112 @@
+<style lang="less">
+@import '../../less/color.less';
+
+.news {
+  text-align: center;
+
+  .time {
+    display: inline-block;
+    height: 30rpx;
+    line-height: 30rpx;
+    padding: 0 10rpx;
+    margin: 20rpx 0;
+    font-size: 16rpx;
+    border-radius: 4rpx;
+    color: #fff;
+    background-color: rgba(0, 0, 0, 0.3);
+  }
+
+  .card {
+    width: 90vw;
+    margin: 0 auto 20rpx auto;
+    box-shadow: 0 0 10rpx 0 rgba(0, 0, 0, 0.1);
+    border-radius: 10rpx;
+    overflow: hidden;
+    font-size: 30rpx;
+  }
+}
+.cover {
+  background-color: @gray;
+}
+.first-item {
+  position: relative;
+  height: 280rpx;
+
+  .cover {
+    filter: brightness(0.7);
+  }
+}
+
+.news-title {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  text-align: left;
+  color: #fff;
+}
+
+.single-item .cover {
+  height: 280rpx;
+}
+
+.mini-title {
+  text-align: left;
+}
+
+.mini-cover {
+  height: 100rpx;
+  width: 100rpx;
+}
+</style>
+<template>
+  <view class="bg-content">
+    <repeat for="{{list}}">
+      <view class="news">
+        <text class="time">{{ item.created_at }}</text>
+        <view class="card info">
+          <repeat for="{{item.newsitem.data}}" item="itm" index="idx">
+            <view wx:if="{{item.newsitem.data.length == 1}}" class="single-item" @tap="click({{itm}})">
+              <image mode="aspectFill" class="cover" src="{{itm.cover}}" lazy-load="true" bindload="onLazyLoad"></image>
+              <view class="mini-title padding-15">{{ itm.title }}</view>
+            </view>
+            <block wx:else>
+              <view wx:if="{{ idx == 0}}" class="first-item" @tap="click({{itm}})">
+                <image mode="aspectFill" class="cover" src="{{itm.cover}}" lazy-load="true"></image>
+                <view class="padding-10 news-title">{{ itm.title }}</view>
+              </view>
+              <view wx:else class="padding-15 flex flex-between" @tap="click({{itm}})">
+                <view slot="title" class="mini-title font-12">{{ itm.title }}</view>
+                <image slot="detail" class="cover mini-cover" src="{{itm.cover}}" lazy-load="true"></image>
+              </view>
+            </block>
+          </repeat>
+        </view>
+      </view>
+    </repeat>
+  </view>
+</template>
+<script>
+import wepy from 'wepy'
+import article from '@/api/article'
+
+export default class ArticleList extends wepy.component {
+  components = {}
+
+  props = {
+    list: {
+      type: Array,
+      default: []
+    }
+  }
+  methods = {
+    onLazyLoad: e => {
+      // console.log(e)
+    },
+    click: e => {
+      article.read(e.id)
+      this.$parent.$preload('url', e.url)
+      this.$parent.$navigate('/pages/common/webview')
+    }
+  }
+}
+</script>

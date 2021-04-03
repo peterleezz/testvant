@@ -1,0 +1,168 @@
+<style lang="less">
+.tag {
+  width: 20%;
+  font-size: 28rpx;
+  margin: 10rpx 10rpx;
+
+}
+
+</style>
+<template>
+  <view>
+    <form @submit="submit" report-submit="true">
+      <input-teachers :config.sync="teachers" />
+      <input-contracts :config.sync="contracts" />
+      <appoint-date :config.sync="appoint_date" />
+      <view class=" field">
+        <view class="field-cell__hd field-title">上课时间:</view>
+      </view>
+      <view class="panel padding-10">
+        <view class="list list-last-child">
+          <repeat for="{{fields}}">
+            <Tags :item.sync="item" class="margin-leftAndRight-20">{{item.time}}</Tags>
+          </repeat>
+        </view>
+      </view>
+      <button class="btn btn-sci fixed-bottom" formType="submit">确定</button>
+    </form>
+  </view>
+</template>
+<script>
+import wepy from 'wepy'
+import input from '@/components/input/index'
+
+import ptcontract from '@/api/ptcontract'
+import ptappoint from '@/api/ptappoint'
+import Tips from '@/utils/Tips'
+import form from '@/mixins/input'
+import dateformat from '@/utils/Date'
+import Event from '@/utils/Event'
+import Cache from '@/utils/Cache'
+import Tags from '@/components/tag/index'
+export default class yogaptAppoint extends wepy.page {
+  data = {
+    fields: [],
+    fields1: [],
+    id: '0',
+    contract: null,
+    appoint_time: '',
+    appoint_date: {
+      label: '日期:',
+      type: 'date',
+      name: 'appoint_date',
+      placeholder: '',
+      value: dateformat.format(new Date(), 'yyyy-MM-dd'),
+      disabled: true
+    },
+
+    contracts: {
+      label: '上课内容:',
+      name: 'contract_id',
+      placeholder: '',
+      type: 'select',
+      disabled: true,
+      index: 0,
+      list: []
+    },
+    teachers: {
+      label: '上课老师:',
+      name: 'teacher_id',
+      placeholder: '',
+
+      disabled: true,
+      index: 0,
+      value: dateformat.format(new Date(), 'yyyy-MM-dd'),
+    }
+  }
+  mixins = [form]
+  validate(formdata) {
+    return [{
+        value: formdata.appoint_time,
+        method: 'required',
+        message: '请选择时间'
+      },
+      {
+        value: formdata.appoint_date,
+        method: 'required',
+        message: '请选择日期'
+      },
+
+    ]
+
+    return this.check(rules)
+  }
+  events = {
+    onchange: async (e, v) => {
+      console.log(e, v)
+      if (v.name == 'appoint_date') {
+        await this.getfield({ date: e })
+      }
+    },
+    tagTap: item => {
+      console.log(item)
+      if (!item.isAppointed) {
+        this.fields = JSON.parse(JSON.stringify(this.fields1));
+        this.fields.forEach(e => e.type = e.time == item.time ? "primary" : e.type)
+        console.log(this.fields1)
+        this.appoint_time = item.time
+      }
+
+
+    },
+  }
+
+  methods = {
+    submit: async e => {
+      try {
+        await Tips.confirm()
+        let formdata = e.detail.value
+        if (!this.validate(formdata)) {
+          return
+        }
+        let appointDate = formdata.appoint_date + ' ' + this.appoint_time
+
+
+        await ptappoint.create({
+          contract_id: formdata.contract_id,
+          appoint_date: appointDate,
+          teacher_id: this.id,
+
+        })
+
+
+
+        await Tips.success()
+        this.$redirect('../main/ptappointhistory')
+      } catch (e) {
+        Tips.error(e)
+      }
+      this.$apply()
+    }
+  }
+
+  components = {
+    'input-contracts': input,
+    'input-teachers': input,
+    Tags,
+    'appoint-date': input
+  }
+  async getfield(data = {}) {
+    let { data: data1 } = await ptappoint.timefields(this.id, data)
+    this.fields = data1
+    this.fields.forEach(ee => ee.type = ee.isAppointed ? "disabled" : "primary empty")
+    this.fields1 = [...this.fields];
+    this.$apply()
+  }
+  async onLoad({ id = '0', name = "" }, preloadData) {
+    this.teachers.value = name
+    this.id = id
+    let { data } = await ptcontract.index({ include: 'teachers' })
+    this.contracts.list = data.filter(e => e.teachers.data.length > 0 && e.teachers.data[0].id == this.id)
+    await this.getfield()
+
+
+    this.$apply()
+  }
+}
+
+</script>

@@ -1,0 +1,35 @@
+<script>
+import wepy from 'wepy'
+import form from '@/api/form'
+export default class ImageMixin extends wepy.mixin {
+  async chooseFile(e) {
+    let res = await wepy.chooseImage({ count: 1 })
+    return res.tempFilePaths[0]
+  }
+
+  async uploadFile(file) {
+    return await form.uploadFile(file)
+  }
+
+  methods = {
+    chooseImages: async e => {
+      let res = await wepy.chooseImage({ count: 5 })
+      this.base_tempurl = res.tempFilePaths[0]
+      this.base_images = await this.$parent.uploadFile(res.tempFilePaths[0])
+      this.$apply()
+    },
+    previewImage: async (file, e) => {
+      await wepy.previewImage({
+        current: e.currentTarget.id, // 当前显示图片的http链接
+        urls: [file] // 需要预览的图片http链接列表
+      })
+    },
+    previewImages: async (files, e) => {
+      await wepy.previewImage({
+        current: e.currentTarget.id, // 当前显示图片的http链接
+        urls: files // 需要预览的图片http链接列表
+      })
+    }
+  }
+}
+</script>

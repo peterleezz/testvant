@@ -1,0 +1,29 @@
+<style lang="less"></style>
+<template>
+    <text class="iconfont icon-{{type}}" @tap.stop="iconTap"></text>
+</template>
+<script>
+  import wepy from 'wepy'
+  export default class Icon extends wepy.component {
+    props = {
+      type: {
+        type: String,
+        twoWay: true,
+        default: ''
+      },
+      handleTap: {
+        type: String,
+        twoWay: true,
+        default: ''
+      }
+    }
+
+    methods = {
+      iconTap: event => {
+        if (this.handleTap !== '') {
+          this.$emit(this.handleTap)
+        }
+      }
+    }
+  }
+</script>

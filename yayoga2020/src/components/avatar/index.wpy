@@ -1,0 +1,121 @@
+<style lang="less">
+@import '../../less/color.less';
+.avatar {
+  margin-right: 20rpx;
+  &-img {
+    overflow: hidden;
+  }
+  .image {
+    position: relative;
+    background-color: @bg;
+    height: 100%;
+    width: 100%;
+  }
+}
+
+.large {
+  height: 160rpx;
+  width: 160rpx;
+}
+
+.default {
+  height: 100rpx;
+  width: 100rpx;
+}
+
+.tiny {
+  height: 40rpx;
+  width: 40rpx;
+}
+
+.small {
+  height: 80rpx;
+  width: 80rpx;
+  .content-in {
+    font-size: 10px;
+  }
+}
+
+.circle {
+  border-radius: 50%;
+}
+
+.square {
+  border-radius: 10rpx;
+}
+.content-in {
+  color: #fff;
+}
+</style>
+<template>
+  <view class="avatar flex flex-column">
+    <view class="avatar-img {{size}} {{shape}}" @tap.stop="click({{item}})">
+      <block wx:if="{{!isMe}}">
+        <image src="{{src}}" class="image" @error="bindError">
+          <view class="content-in center-in-center" wx:if="{{contentIn}}"> {{ contentIn }} </view>
+        </image>
+      </block>
+      <block wx:else>
+        <open-data type="userAvatarUrl" class="image"></open-data>
+      </block>
+    </view>
+    <view class="overflow-txt font-12 text-align-center">{{ content }}</view>
+  </view>
+</template>
+<script>
+import wepy from 'wepy'
+export default class Avatar extends wepy.component {
+  props = {
+    src: {
+      type: String,
+      default: '',
+      twoWay: true
+    },
+    size: {
+      type: String,
+      default: 'default'
+    },
+    shape: {
+      type: String,
+      default: 'circle'
+    },
+    handleTap: {
+      type: String,
+      default: ''
+    },
+    item: {
+      type: [Object, String],
+      default: null,
+      twoWay: true
+    },
+    isMe: {
+      type: [Boolean, String],
+      default: false
+    },
+    content: {
+      type: String,
+      default: ''
+    },
+    contentIn: {
+      type: String,
+      default: ''
+    },
+    errorImg: {
+      type: String,
+      default: ''
+    }
+  }
+  data = {}
+  methods = {
+    click: e => {
+      if (this.handleTap !== '') {
+        this.$emit(this.handleTap, e)
+      }
+    },
+    bindError: e => {
+      if (this.errorImg != '') this.src = this.errorImg
+    }
+  }
+  onLoad() {}
+}
+</script>

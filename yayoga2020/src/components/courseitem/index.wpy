@@ -1,0 +1,90 @@
+<style type="less">
+@import '../../less/color.less';
+.course-main {
+  width: 690rpx;
+  height: 482rpx;
+  box-shadow: 0rpx 9rpx 21rpx 0rpx rgba(94, 92, 95, 0.29);
+  .course-image {
+    width: 690rpx;
+    height: 310rpx;
+    position: relative;
+    .position {
+      left: 20rpx;
+      bottom: 20rpx;
+      position: absolute;
+    }
+    .price {
+      right: 0rpx;
+      bottom: 20rpx;
+      position: absolute;
+    }
+  }
+  .cell-list {
+    padding: 0;
+  }
+  .distant {
+    position: absolute;
+    bottom: 10rpx;
+    right: 20rpx;
+  }
+  .text-color {
+    color: @fontcolor;
+  }
+}
+</style>
+<template>
+  <cell-group class="flex padding-15" custom-class="single-cellgroup">
+    <block>
+      <navigator class="course-main border-radius-10" url="../detail/index?schedule_id={{item.id}}">
+        <image class="course-image border-radius-10" src="{{item.club.data.cover}}">
+          <view class="font-12 base-white-color">
+            <view class="position background-color-000">{{ item.club.data.name }}</view>
+            <view class="price border-left-radius theme-bg padding-leftAndRight-10">{{ item.sub_type_desc }}: ¥{{ item.price }}</view>
+          </view>
+        </image>
+        <cell :item="item" access="false">
+          <view slot="title"> </view>
+          <view slot="detail" class="flex-start padding-left-4">
+            <view class="flex-align-start flex-start flex text-color font-16">
+              <view>{{ item.course.data.name }}</view>
+              <view class="padding-left-10">{{ item.teacher.data.name }}</view>
+            </view>
+            <view class="text-color font-10">Time: {{ item.start }}</view>
+            <view class="flex-align-start flex-start flex">
+              <icon type="location"></icon>
+              <view class="text-color font-12">{{ item.club.data.location }}</view>
+            </view>
+            <view class="distant flex flex-end">
+              <icon1 type="paper"></icon1>
+              <view class="text-color font-12 padding-left-10">{{ item.club.data.distance }}km</view>
+            </view>
+          </view>
+        </cell>
+      </navigator>
+    </block>
+  </cell-group>
+</template>
+
+<script>
+import wepy from 'wepy'
+import cellGroup from '@/components/cell-group/index'
+import cell from '@/components/cell/index'
+import Icon from '@/components/icon/index'
+
+export default class courseList extends wepy.component {
+  components = {
+    cell: cell,
+    icon: Icon,
+    icon1: Icon,
+    icon2: Icon,
+    'cell-group': cellGroup
+  }
+  props = {
+    item: {
+      type: Object,
+      default: {},
+      twoWay: true
+    }
+  }
+}
+</script>

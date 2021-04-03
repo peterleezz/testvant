@@ -1,0 +1,48 @@
+<style lang="less"></style>
+<template>
+  <weektab class="week-tab" @bindChange.user="weekChange"></weektab>
+</template>
+<script>
+import wepy from 'wepy'
+import tab from '@/components/tab/index'
+import DateFormat from '@/utils/Date'
+
+export default class WeekTab extends wepy.component {
+  components = {
+    weektab: tab
+  }
+
+  data = {
+    weekTab: {
+      list: [],
+      scroll: false,
+      selectedId: 0,
+      height: 50,
+      lheight: 25,
+      class: 'tab-sci',
+      id: 'week'
+    }
+  }
+
+  methods = {
+    weekChange: selectedId => {
+      this.weekTab.selectedId = selectedId
+      this.$emit('weekChange', this.weekTab.list[selectedId].value)
+    }
+  }
+
+  initWeekTab() {
+    this.$invoke('weektab', 'doInitTabData', this.weekTab)
+  }
+
+  onLoad() {
+    for (let i = 0; i < 7; i++) {
+      let date = DateFormat.addDay(new Date(), i)
+      let day = DateFormat.format(date, 'MM-dd')
+      let week = DateFormat.dayOfWeek(date)
+      this.weekTab.list.push({ id: i, title: week, subtitle: day, value: DateFormat.format(date, 'yyyy-MM-dd') })
+    }
+    this.$invoke('weektab', 'doInitTabData', this.weekTab)
+  }
+}
+</script>

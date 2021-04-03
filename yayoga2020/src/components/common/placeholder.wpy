@@ -1,0 +1,47 @@
+<style lang="less">
+.empty-placeholder {
+  width: 100%;
+  height: 300rpx;
+  line-height: 300rpx;
+  text-align: center;
+
+  text {
+    color: #aaa;
+    font-size: 40rpx;
+  }
+}
+</style>
+<template>
+  <block wx:if="{{show}}">
+    <!--空占位符-->
+    <view class="empty-placeholder row-center" wx:if="{{type == 'empty'}}" @tap="tap">
+      <text class="ml20">{{ message }}</text>
+    </view>
+    <!--新增占位符-->
+    <view class="empty-placeholder column-center" wx:if="{{type == 'add'}}" @tap="tap">
+      <image class="icon-xl" src="/images/icons/plus.png" />
+      <text class="mt20">{{ message }}</text>
+    </view>
+  </block>
+</template>
+<script>
+import wepy from 'wepy'
+export default class placeholder extends wepy.component {
+  props = {
+    show: {
+      type: [String, Boolean],
+      default: false
+    },
+    type: {
+      type: String,
+      default: 'empty'
+    },
+    message: { default: '没有相关信息' }
+  }
+  methods = {
+    tap: () => {
+      this.$emit('tap')
+    }
+  }
+}
+</script>

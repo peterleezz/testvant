@@ -1,0 +1,75 @@
+<style lang="less" src="./index.less"></style>
+<template>
+  <view
+    class="add-file flex-list"
+    style="width:{{imgWidth+'px'}};height:{{imgWidth+'px'}};"
+    wx:if="{{count<total}}"
+    catchtap="upLoad"
+  >
+    <text class="iconfont icon-plus color-999"></text>
+    <text class="color-999">添加 {{ count }}/{{ total }}</text>
+  </view>
+</template>
+<script>
+import wepy from 'wepy'
+import image from '@/mixins/image'
+export default class Uploader extends wepy.component {
+  props = {
+    imgList: {
+      // 上传图片列表
+      type: Array,
+      twoWay: true,
+      default: function() {
+        return []
+      }
+    },
+
+    imgWidth: {
+      // 宽度
+      type: [Number, String],
+      twoWay: true,
+      default: 90
+    },
+    total: {
+      // 可上传图片总数
+      type: Number,
+      twoWay: true,
+      default: 0
+    },
+    local: {
+      // 预留本地
+      type: Boolean,
+      twoWay: true,
+      default: false
+    }
+  }
+  mixins = [image]
+  methods = {
+    async upLoad() {
+      let filePath = await this.chooseFile()
+      if (this.local) {
+        this.$emit('refresh-img-list', filePath, '')
+      } else {
+        const remotePath = await this.uploadFile(filePath)
+        this.$emit('refresh-img-list', filePath, remotePath)
+      }
+    }
+  }
+
+  data = {
+    count: 0
+  }
+
+  watch = {
+    imgList(newValue, oldValue) {
+      this.count = newValue.length
+      this.$apply()
+    }
+  }
+
+  onLoad() {
+    this.count = this.imgList.length
+    this.$apply()
+  }
+}
+</script>

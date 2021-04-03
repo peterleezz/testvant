@@ -1,0 +1,54 @@
+<template>
+  <view class="sci-content content">
+    <repeat for="{{clubs}}">
+      <cell :title="item.name " :item="item" :arrow="true">
+        <view slot="detail" class="font-12">
+          {{ item.distance}} KM
+        </view>
+      </cell>
+    </repeat>
+  </view>
+</template>
+<script>
+import wepy from 'wepy'
+import appoint from '@/api/appoint'
+import placeholder from '@/components/common/placeholder'
+import loadmore from '@/components/loadmore/index'
+import pagination from '@/mixins/pagination'
+import dateformat from '@/utils/Date'
+import Tips from '@/utils/Tips'
+import Cache from '@/utils/Cache'
+import cell from '@/components/cell/index'
+import Event from '../../utils/Event'
+export default class appointclubs extends wepy.page {
+  config = {
+    navigationBarTitleText: '门店列表',
+    enablePullDownRefresh: true
+  }
+
+  mixins = [pagination]
+
+  components = {
+    loadmore,
+    cell,
+    placeholder
+  }
+
+  data = {
+    clubs: []
+  }
+  events = {
+    cellTap: item => {
+      Event.emit(Event.SWITCH_CLUB, item.id)
+      wepy.navigateBack()
+    },
+  }
+
+
+  async onLoad(options) {
+    this.clubs = await Cache.clubs()
+    this.$apply()
+  }
+}
+
+</script>

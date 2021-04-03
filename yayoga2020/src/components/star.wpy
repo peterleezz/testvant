@@ -1,0 +1,20 @@
+<style lang="less">
+    .star {
+        font-size: 30rpx;
+        color: #e7801f;
+    }
+</style>
+<template>
+    <text class="star" wx:for="{{score}}" wx:key="{{index}}">★</text>
+</template>
+
+<script>
+import wepy from 'wepy'
+
+export default class Star extends wepy.page {
+    data = {
+        score: 5
+    }
+
+}
+</script>

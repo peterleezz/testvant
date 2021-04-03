@@ -1,0 +1,259 @@
+<style>
+.mask_content {
+  flex-direction: column;
+}
+.mask_modal {
+  overflow: hidden;
+  animation: slowshow .5s 0s linear;
+}
+@keyframes slowshow {
+  0% {height: 0rpx;}
+  100% {height: 624rpx;}
+}
+.calendar_week {
+  font-size: 32rpx;
+  line-height: 32rpx;
+  height: 32rpx;
+  width: 630rpx;
+}
+.calendar_week_item {
+  width: 90rpx;
+  text-align: center;
+}
+.calendar_days {
+  width: 630rpx;
+  height: 500rpx;
+  flex-wrap: wrap;
+}
+.calendar_day {
+  width: 90rpx;
+  text-align: center;
+  height: 60rpx;
+  justify-content: center;
+}
+.day {
+  color: #373839;
+  font-size: 26rpx;
+  width: 50rpx;
+  height: 50rpx;
+  line-height: 50rpx;
+  text-align: center;
+}
+.mask_title {
+  justify-content: center;
+}
+.mask_title .iconfont {
+  font-size: 36rpx;
+  line-height: 92rpx;
+}
+.mask_title picker {
+  padding: 0 20rpx;
+}
+.disable {
+  filter: opacity(0.3);
+}
+.weekend {
+  color: red;
+}
+.today_pick {
+  background-color: #373839;
+  color: #fff;
+  border-radius: 50%;
+  filter: opacity(1);
+}
+.day_pick {
+  background-color: #79a9ac;
+  color: #fff;
+  border-radius: 50%;
+  filter: opacity(1);
+}
+.year_month {
+  width: 180rpx;
+}
+</style>
+<template>
+  <view hidden="{{!showCalendar}}" class="mask flex">
+    <view class="mask_modal content">
+      <view @tap="hideCalendar" class="iconfont icon-close_line"></view>
+      <view class="mask_title flex">
+        <view @tap="reduce" class="iconfont icon-last"></view>
+        <picker @change="pickerChange" value="{{pickerValue}}" mode="date" fields="month" start="1900-01" end="2100-12">
+          <view class="year_month">{{year}}年{{month}}月</view>
+        </picker>
+        <view @tap="plus" class="iconfont icon-next"></view>
+      </view>
+      <view class="mask_content flex">
+        <view class="calendar_week flex">
+          <block wx:for="{{[ '日', '一', '二', '三', '四', '五', '六' ]}}" wx:key="{{index}}">
+            <view class="calendar_week_item">{{item}}</view>
+          </block>
+        </view>
+        <view class="calendar_days flex">
+          <block wx:for="{{days}}" wx:key="{{index}}">
+            <view @tap="pickDay({{item.day}},{{item.value}},{{item.month}})" class="calendar_day flex">
+              <view class="day {{item.value==todayDate?'today_pick':''}} {{item.value==chosenDate?'day_pick':''}} {{((index+1)%7==1||(index+1)%7==0)?'weekend':''}} {{item.month!='current'?'disable':''}}">{{item.day}}</view>
+            </view>
+          </block>
+        </view>
+      </view>
+    </view>
+  </view>
+</template>
+<script>
+import wepy from 'wepy'
+import {getThisMonthDays,getFirstDayOfWeek,getLastDayOfWeek,dealDate,formatTime,buling} from '../utils/Utils'
+
+export default class CalendarModal extends wepy.component {
+  props = {
+    view_id: {
+      type: String,
+      default: '',
+      twoWay: true
+    },
+    chosenDate: {
+      type: String,
+      default: '',
+      twoWay: true
+    },
+    todayDate: {
+      type: String,
+      default: '',
+      twoWay: true
+    },
+    showCalendar: {
+      type: Boolean,
+      default: false,
+      twoWay: true
+    },
+    year: {
+      type: String,
+      default: '',
+      twoWay: true
+    },
+    month: {
+      type: String,
+      default: '',
+      twoWay: true
+    }
+  }
+
+  data = {
+    days: [],
+    pickerValue: ''
+  }
+
+  watch = {
+
+  }
+
+  //渲染日历格子
+  calculateDays(year, month) {
+    year = parseInt(year)
+    month = parseInt(month)
+    const lastmonth = month==1?12:month-1
+    const nextmonth = month==12?1:month+1
+    // 计算在每月第一天在当月第一周之前的空余的天数，上个月的日历格子
+    const firstDayOfWeek = getFirstDayOfWeek(year, month)
+    let lastGrids = []
+    const lastMonthDay = getThisMonthDays(year,lastmonth)
+    if (firstDayOfWeek > 0) {
+      let last_year = month==1?year-1:year
+      for (let i = 0; i < firstDayOfWeek; i++) {
+        lastGrids.unshift({month:'last',day:lastMonthDay-i,value:dealDate(last_year,lastmonth,lastMonthDay-i)})
+      }
+    } 
+
+    //当前月的日历格子
+    let currentGrids = []
+    const thisMonthDays = getThisMonthDays(year, month)
+    for (let i = 1; i <= thisMonthDays; i++) {
+      currentGrids.push({
+        day: i,
+        value: dealDate(year,month,i),
+        month:'current'
+      })
+    }
+
+    //计算本月最后一天是星期几，得到下个月的格子
+    const lastDayOfWeek = getLastDayOfWeek(year,month)
+    let nextGrids = []
+    if (lastDayOfWeek < 6) {
+      let next_year = month==12?year+1:year
+      for (let i = 1; i < 7-lastDayOfWeek; i++) {
+        nextGrids.push({month:'next',day:i,value:dealDate(next_year,nextmonth,i)})
+      }
+    } 
+    this.days = lastGrids.concat(currentGrids).concat(nextGrids)
+  }
+
+  methods = {
+    pickerChange: e => {
+      this.pickerValue = e.detail.value
+      let arr = e.detail.value.split('-')
+      this.year = arr[0]
+      this.month = arr[1]
+      this.calculateDays(arr[0], arr[1])
+    },
+    reduce: e => this.toLast(),
+    plus: e => this.toNext(),
+    hideCalendar: e => this.showCalendar = false,
+    pickDay: (day,date,month,e) => {
+      try { 
+        if(date<this.todayDate)
+          throw new Error('不能查看今日前的排课！')
+        this.showCalendar = false
+        this.chosenDate = date
+        this.view_id = 'date_'+day
+        switch(month) {
+          case 'last':
+          this.toLast()
+          break
+          case 'next':
+          this.toNext()
+          break
+        }
+      }
+      catch(e) {
+        wepy.showModal({title:'提示',content:e.message,showCancel:false,confirmColor:'#79a9ac'})
+      }
+    },
+  }
+
+  toLast() {
+    if(parseInt(this.month)==1) {
+      this.month=12
+      this.year--
+    }
+    else
+      this.month = buling(this.month-1)
+    this.pickerValue = `${this.year}-${this.month}`
+    this.calculateDays(this.year,this.month)
+  }
+
+  toNext() {
+    if(parseInt(this.month)==12) {
+      this.month='01'
+      this.year++
+    }
+    else
+      this.month = buling(parseInt(this.month)+1)
+    this.pickerValue = `${this.year}-${this.month}`
+    this.calculateDays(this.year,this.month)
+  }
+
+  onLoad() {
+    const now = new Date()
+    this.todayDate = this.chosenDate = formatTime(now,'yyyy-MM-dd')
+    
+    if(this.year==''&&this.month=='') {
+      this.year = now.getFullYear()
+      this.month = buling(now.getMonth() + 1)
+    }
+    this.calculateDays(this.year, this.month)
+
+    if(this.calendarTitle=='') {
+      this.pickerValue = `${this.year}-${this.month}`
+    }
+  }
+}
+</script>
