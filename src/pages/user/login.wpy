@@ -55,6 +55,7 @@
       <van-button type="info" size="large" round @tap="login_type=2" v-if="login_type!=2">手机号码登录</van-button>
       <van-button type="info" size="large" round @tap="phonelogin" v-if="login_type==2">手机号码登录</van-button>
       <van-button v-if="login_type==2" plain type="primary" size="large" openType="getPhoneNumber" @getphonenumber="wxlogin($event)" round class="van-hairline--left van-hairline--top">微信号码登录</van-button>
+      <van-button plain type="default" size="large" round class="van-hairline--left van-hairline--top" @tap="back()">暂不登陆</van-button>
     </div>
   </div>
   <van-toast id="van-toast" />
@@ -163,7 +164,9 @@ wepy.page({
 
 
     },
-
+    back() {
+      wx.navigateBack()
+    },
 
     async wxlogin(e) {
       this.checkAuthed()

@@ -1,7 +1,7 @@
 <style lang="less">
 </style>
 <template>
-  <van-cell bind:click="confirm(item)" is-link title="{{ item.contract.data.ptclassdetail.data.name }}" value=" {{ item.appoint_date }}" v-for="item in page.list" />
+  <van-cell bind:click="confirm(item)" is-link title="{{ item.contract.data.ptclassdetail.data.name }} |{{item.is_come==2?'完成':'未完成'}}" value=" {{ item.appoint_date }}" v-for="item in page.list" />
   <van-dialog id="van-dialog" />
   <van-empty description="暂无数据" v-if="page.list.length == 0" />
 </template>
@@ -37,7 +37,7 @@ wepy.page({
     ...mapMutations([]),
 
     async confirm(item) {
-      if (item.is_come > 0) {
+      if (item.is_come > 1) {
         return
       }
       let ret = await Dialog.confirm({

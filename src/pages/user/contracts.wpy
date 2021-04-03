@@ -98,7 +98,7 @@ wepy.page({
       // })
       // .then(() => {
       // try {
-      // res = await api.rest(id)
+      // res = await api.rest(id)  
       // if (res.timeStamp) {
       // await wepy.requestPayment(res)
       // }
